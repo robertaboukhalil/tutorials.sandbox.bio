@@ -1,10 +1,8 @@
 <script>
 import { onMount } from "svelte";
-import { Aioli } from "../public/aioli.js";
+import { Aioli } from "../public/aioli.js";  // FIXME: import { Aioli } from "@biowasm/aioli";
 import BedViz from "./BedViz.svelte";
-
-// FIXME: Import from npm once push Aioli fixes
-// import { Aioli } from "@biowasm/aioli";
+import CommandLine from "./CommandLine.svelte";
 
 
 // -----------------------------------------------------------------------------
@@ -123,6 +121,12 @@ textarea {
 
 	<div class="container">
 			<!-- bedtools command -->
+			<CommandLine
+				command={Cmd}
+				preload={["bedtools/2.29.2"]}
+				on:execute={d => console.log(d.detail)}
+			/>
+
 			<input type="text" class="form-control" bind:value={Cmd} />
 			<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
 		<div class="row">
