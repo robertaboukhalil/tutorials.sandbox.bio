@@ -57,7 +57,6 @@ $: bedUser.color = bedUser.contents == lesson.goal.contents ? "green" : "red";
 
 /**
  * Initialize BED files for this lesson
- * 
  * @param {Array} bedFiles List of BED files: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
  * @return null
  */
@@ -82,7 +81,6 @@ async function init(bedFiles)
 
 /**
  * Run a bedtools command
- * 
  * @param {String} program Should always be "bedtools" 
  * @param {String} parameters Space-separated parameters to send to bedtools
  */

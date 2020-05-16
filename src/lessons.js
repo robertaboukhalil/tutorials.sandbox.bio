@@ -1,19 +1,18 @@
 let Bed1 = `
 chr1	10	20	a1	1	+
-chr1	100	200	a2	2	-
+chr1	50	70	a2	2	+
+chr1	80	90	a3	2	+
 `.trim();
 
 let Bed2 = `
-chr1	15	30	b1	1	+
-chr1	90	101	b2	2	-
-chr1	100	110	b3	3	+
-chr1	200	210	b4	4	+
+chr1	30	40	b1	2	+
+chr1	55	65	b2	2	+
+chr1	85	120	b3	4	+
 `.trim();
 
 let Bed1_intersect_Bed2 = `
-chr1	15	20	a1	1	+
-chr1	100	101	a2	2	-
-chr1	100	110	a2	2	-
+chr1	55	65	a2	2	+
+chr1	85	90	a3	2	+
 `.trim();
 
 export const Lessons = [
