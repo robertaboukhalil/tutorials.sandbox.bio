@@ -24,28 +24,13 @@ import CommandLine from "./CommandLine.svelte";
 // Bedtools WebAssembly module
 let Bedtools = new Aioli("bedtools/2.29.2");
 
-// Lesson in progress
-let BedUser = {
-	name: "Yours",
-	contents: "",
-	color: "red",
-	error: false
-};
-
-// Tabs to show user
-let BedTabs = {
-	input: {},
-	output: {},
-	usage: {
-		name: "Usage",
-		contents: "Loading..."
-	},
-};
-
-
 // Current lesson
 let lesson = {};
 let lessonNb = 0;
+
+// Bed Files
+let bedUser = { name: "Yours", contents: "" };
+let bedUsage = { name: "Usage", contents: "Loading..." };
 
 // UI State
 let uiReady = false;
@@ -61,16 +46,9 @@ let uiCmd = "bedtools intersect -a a.bed -b b.bed";
 // Logic to update the lesson
 $: lesson = Lessons[lessonNb];
 $: init(lesson.inputs);
-$: BedUser.color = BedUser.contents == lesson.goal.contents ? "green" : "red";
 
-// Update tabs to display
-$: BedTabs.input = [
-	BedTabs.usage,
-	lesson.goal,
-	...lesson.inputs
-];
-
-$: BedTabs.output = [BedUser];
+// Check whether user output is correct
+$: bedUser.color = bedUser.contents == lesson.goal.contents ? "green" : "red";
 
 
 // -----------------------------------------------------------------------------
@@ -96,12 +74,10 @@ async function init(bedFiles)
 	// directory so users can refer to the .bed files without specifying /data.
 	if(files.length == 0)
 		return;
-	let directory = files[0].directory;
-	await Bedtools.fs("chdir", directory);
+	await Bedtools.fs("chdir", files[0].directory);
 
-	// Get usage of relevant bedtools command
-	let usage = await Bedtools.exec(lesson.usage);
-	BedTabs.usage.contents = usage.stderr;
+	// Get documentation for relevant bedtools command
+	bedUsage.contents = (await Bedtools.exec(lesson.usage)).stderr;
 }
 
 /**
@@ -121,11 +97,11 @@ async function run(program, parameters)
 
 	// Run bedtools with the parameters provided
 	uiReady = false;
-	let output = await Bedtools.exec(parameters);
+	let out = await Bedtools.exec(parameters);
 
 	// Save stdout/stderr
-	BedUser.error = output.stderr != "";
-	BedUser.contents = BedUser.error ? output.stderr.trim() : output.stdout.trim();
+	bedUser.error = out.stderr != "";
+	bedUser.contents = (out.stdout + out.stderr).trim();
 	uiReady = true;
 }
 
@@ -181,18 +157,18 @@ onMount(async () => {
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[ ...lesson.inputs, lesson.goal, BedUser ]} />
+				<BedViz beds={[ ...lesson.inputs, lesson.goal, bedUser ]} />
 			</div>
 		</div>
 
 		<!-- Inputs and outputs -->
 		<div class="row">
 			<div class="col-6">
-				<Tabs tabs={BedTabs.input} />
+				<Tabs tabs={[ bedUsage, ...lesson.inputs, lesson.goal ]} />
 			</div>
 
 			<div class="col-6">
-				<Tabs tabs={BedTabs.output} />
+				<Tabs tabs={[ bedUser ]} />
 			</div>
 		</div>
 	</div>
