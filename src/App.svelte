@@ -11,12 +11,17 @@ import CommandLine from "./CommandLine.svelte";
 // Globals
 // -----------------------------------------------------------------------------
 
+// Bedtools WebAssembly module
 let Bedtools = new Aioli("bedtools/2.29.2");
 let StdOut = "Loading...";
 let StdErr = "";
 
 // Lesson in progress
 let Lesson = {};
+let BedUser = {
+	name: "yours.bed",
+	contents: ""
+}
 
 // UI State
 let UI = {
@@ -81,6 +86,9 @@ async function run(program, parameters)
 
 	// Run bedtools with the parameters provided
 	let output = await Bedtools.exec(parameters);
+	BedUser.contents = output.stdout;
+
+	// Display stdout/stderr
 	StdOut = output.stdout;
 	StdErr = output.stderr.replace(/\n/g, "<br>");
 
@@ -155,7 +163,7 @@ textarea {
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[ ...Lesson.inputs, ...Lesson.goals ]} />
+				<BedViz beds={[ ...Lesson.inputs, ...Lesson.goals, BedUser ]} />
 			</div>
 		</div>
 
@@ -175,7 +183,7 @@ textarea {
 			<div class="col-md-4 mb-2">
 				<h4 class="mb-3">Result</h4>
 				<div id="output">
-					{@html StdOut || "Loading ..."}
+					{@html StdOut}
 					<strong><span style="color: red;">
 						{@html StdErr}
 					</span></strong>
