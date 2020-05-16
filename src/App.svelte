@@ -22,7 +22,7 @@ import CommandLine from "./CommandLine.svelte";
 // -----------------------------------------------------------------------------
 
 // Bedtools WebAssembly module
-let Bedtools = new Aioli("bedtools/2.29.2");
+let bedtools = new Aioli("bedtools/2.29.2");
 
 // Current lesson
 let lesson = {};
@@ -74,10 +74,10 @@ async function init(bedFiles)
 	// directory so users can refer to the .bed files without specifying /data.
 	if(files.length == 0)
 		return;
-	await Bedtools.fs("chdir", files[0].directory);
+	await bedtools.fs("chdir", files[0].directory);
 
 	// Get documentation for relevant bedtools command
-	bedUsage.contents = (await Bedtools.exec(lesson.usage)).stderr;
+	bedUsage.contents = (await bedtools.exec(lesson.usage)).stderr;
 }
 
 /**
@@ -97,7 +97,7 @@ async function run(program, parameters)
 
 	// Run bedtools with the parameters provided
 	uiReady = false;
-	let out = await Bedtools.exec(parameters);
+	let out = await bedtools.exec(parameters);
 
 	// Save stdout/stderr
 	bedUser.error = out.stderr != "";
@@ -112,8 +112,8 @@ async function run(program, parameters)
 
 onMount(async () => {
 	// Initialize bedtools and output version
-	await Bedtools.init();
-	await Bedtools.exec("--version").then(d => console.log(d.stdout));
+	await bedtools.init();
+	await bedtools.exec("--version").then(d => console.log(d.stdout));
 
 	uiReady = true;
 	lessonNb = 1;
