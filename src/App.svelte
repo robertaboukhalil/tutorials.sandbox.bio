@@ -1,4 +1,9 @@
 <script>
+// TODO: 
+// - Check if output matches expected answer
+// - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
+// - Replace hardcoded textareas with Tab component
+
 import { onMount } from "svelte";
 import { Aioli } from "@biowasm/aioli";
 
@@ -122,11 +127,11 @@ textarea {
 	word-wrap: normal;
 }
 #output {
-    border: 1px solid lightgray;
-		font-family: Consolas, monospace;
-    padding: 2px;
-		word-wrap: normal;
-		height: 400px;
+	border: 1px solid lightgray;
+	font-family: Consolas, monospace;
+	padding: 2px;
+	word-wrap: normal;
+	height: 400px;
 }
 </style>
 
@@ -167,19 +172,15 @@ textarea {
 			</div>
 		</div>
 
-		<!-- TODO: Replace with Tab component -->
+		<!-- Inputs and outputs -->
 		<div class="row">
-			<!-- Input -->
-			<div class="col-md-4 mb-2">
-				<h4 class="mb-3">a.bed</h4>
-				<textarea class="form-control" rows="10" bind:value={Bed1}></textarea>
-			</div>
-			<div class="col-md-4 mb-2">
-				<h4 class="mb-3">b.bed</h4>
-				<textarea class="form-control" rows="10" bind:value={Bed2}></textarea>
-			</div>
+			{#each Lesson.inputs as bedFile}
+				<div class="col-md-4 mb-2">
+					<h4 class="mb-3">{bedFile.name}</h4>
+					<textarea class="form-control" rows="10" bind:value={bedFile.contents}></textarea>
+				</div>
+			{/each}
 
-			<!-- Result -->
 			<div class="col-md-4 mb-2">
 				<h4 class="mb-3">Result</h4>
 				<div id="output">
