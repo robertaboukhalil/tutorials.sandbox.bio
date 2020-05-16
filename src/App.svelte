@@ -1,6 +1,8 @@
 <script>
+// TODO: move lesson logic into its own component
+
 import { onMount } from "svelte";
-import { Aioli } from "../public/aioli.js";  // FIXME: import { Aioli } from "@biowasm/aioli";
+import { Aioli } from "@biowasm/aioli";
 import BedViz from "./BedViz.svelte";
 import CommandLine from "./CommandLine.svelte";
 
@@ -8,6 +10,7 @@ import CommandLine from "./CommandLine.svelte";
 // -----------------------------------------------------------------------------
 // Globals
 // -----------------------------------------------------------------------------
+
 let Filename1 = "a.bed";
 let Filename2 = "b.bed"
 
@@ -26,12 +29,15 @@ let StdOut = "";
 let StdErr = "";
 let Cmd = `bedtools intersect -a ${Filename1} -b ${Filename2}`;
 
+let UI = {
+	error: "",
+	info: "Enter the <i>bedtools</i> command that will generate the desired output:"
+};
+
 
 // -----------------------------------------------------------------------------
 // Reactive Statements
 // -----------------------------------------------------------------------------
-
-// $: Bedtools.exec("intersect -a ")
 
 $: bedtoolsIntersect(Cmd, Bed1, Bed2);
 
@@ -64,18 +70,63 @@ async function bedtoolsIntersect(cmd, bed1, bed2)
 }
 
 
+/**
+ * Initialize BED files for this lesson
+ * 
+ * @param {Array} bedFiles List of BED files: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
+ * @return null
+ */
+async function init(bedFiles)
+{
+	// Generate Blob objects from strings and mount them as files
+	let files = [];
+	for(let fileInfo of bedFiles) {
+		let blob = new Blob([ fileInfo.contents ], { type: "text/plain" });
+		files.push(await Aioli.mount(blob, fileInfo.name));
+	}
+
+	// At this point, the files are mounted to /data. Let's update the working
+	// directory so users can refer to the .bed files without specifying /data.
+	let directory = files[0].directory;  // this should always be /data, but just in case
+	await Bedtools.fs("chdir", directory);
+}
+
+/**
+ * Run a bedtools command
+ * 
+ * @param {String} program Should always be "bedtools" 
+ * @param {String} parameters Space-separated parameters to send to bedtools
+ * @return {Object} Result of the command: { stdout: "<stdout>", stderr: "<stderr>" }  # FIXME:
+ */
+async function run(program, parameters)
+{
+	// Only accept bedtools commands
+	UI.error = "";
+	if(program != "bedtools") {
+		UI.error = "Only bedtools commands are accepted.";
+		return;
+	}
+
+	// Run bedtools with the parameters provided
+	let output = await Bedtools.exec(parameters);
+	console.log(output);
+}
+
+
 // -----------------------------------------------------------------------------
 // On page load
 // -----------------------------------------------------------------------------
 
-// Initialize bedtools2 and output version
 onMount(async () => {
-	Bedtools.init()
-		.then(() => Bedtools.exec("--version"))
-		.then(d => {
-			console.log(`Loaded ${d.stdout}`)
-			bedtoolsIntersect(Cmd, Bed1, Bed2);
-		});
+	// Initialize bedtools and output version
+	await Bedtools.init();
+	await Bedtools.exec("--version").then(d => console.log(d.stdout));
+
+	// Initialize BED files
+	init([
+		{ name: "a.bed", contents: Bed1 },
+		{ name: "b.bed", contents: Bed2 },
+	]);
 });
 
 
@@ -114,21 +165,43 @@ textarea {
 <main role="main">
 	<div class="jumbotron mt-4 pb-3">
 		<div class="container">
-			<h2 class="display-5">Title</h2>
-			<p class="lead">Description</p>
+			<h2 class="display-5">Lesson 1</h2>
+			<p class="lead">Using bedtools intersect to do xyz</p>
 		</div>
 	</div>
 
 	<div class="container">
-			<!-- bedtools command -->
-			<CommandLine
-				command={Cmd}
-				preload={["bedtools/2.29.2"]}
-				on:execute={d => console.log(d.detail)}
-			/>
 
-			<input type="text" class="form-control" bind:value={Cmd} />
-			<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
+		<!-- bedtools command -->
+		<div class="row">
+			<div class="col-12">
+				<small class="text-muted">
+					<span class="text-info">{@html UI.info}&nbsp;</span>
+				</small>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<CommandLine
+					command={Cmd}
+					on:execute={d => run(d.detail.program, d.detail.parameters)}
+				/>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<small class="text-muted">
+					<span class="text-danger">{@html UI.error}&nbsp;</span>
+				</small>
+			</div>
+		</div>
+
+
+
+<br /><br /><br /><br />
+
+		<input type="text" class="form-control" bind:value={Cmd} />
+		<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
 		<div class="row">
 			<!-- Input -->
 			<div class="col-md-4 mb-2">
