@@ -1,8 +1,8 @@
 <script>
 // TODO: 
-// - Check if output matches expected answer
+// - Tell user if answer is correct
+// - Move to next lesson
 // - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
-// - Replace hardcoded textareas with Tab component
 // - How does it look on mobile?
 
 import { onMount } from "svelte";
@@ -26,7 +26,8 @@ let Lesson = {};
 let BedUser = {
 	name: "Yours",
 	contents: "",
-	color: "red"
+	color: "red",
+	error: false
 }
 
 // Tabs to show user
@@ -45,6 +46,7 @@ let UI = {
 	ready: false,
 	error: "",
 	info: "Enter the <i>bedtools</i> command that will generate the desired output:",
+	cmd: "bedtools intersect -a a.bed -b b.bed"
 };
 
 
@@ -64,10 +66,7 @@ $: BedTabs.input = [
 	...Lesson.inputs
 ];
 
-$: BedTabs.output = [{
-	name: "Your Output",
-	contents: BedUser.contents
-}];
+$: BedTabs.output = [BedUser];
 
 
 // -----------------------------------------------------------------------------
@@ -111,20 +110,18 @@ async function run(program, parameters)
 {
 	// Only accept bedtools commands
 	UI.error = "";
-	UI.ready = false;
 	if(program != "bedtools") {
 		UI.error = "Only bedtools commands are accepted.";
 		return;
 	}
 
 	// Run bedtools with the parameters provided
+	UI.ready = false;
 	let output = await Bedtools.exec(parameters);
 
-	// // Display stdout/stderr
-	// StdOut = output.stdout;
-	// StdErr = output.stderr.replace(/\n/g, "<br>");
-
-	BedUser.contents = output.stdout.trim();
+	// Save stdout/stderr
+	BedUser.error = output.stderr != "";
+	BedUser.contents = BedUser.error ? output.stderr.trim() : output.stdout.trim();
 	UI.ready = true;
 }
 
@@ -147,21 +144,6 @@ onMount(async () => {
 // HTML
 // -----------------------------------------------------------------------------
 </script>
-
-<style>
-textarea {
-	font-family: Consolas, monospace;
-	white-space: pre;
-	word-wrap: normal;
-}
-#output {
-	border: 1px solid lightgray;
-	font-family: Consolas, monospace;
-	padding: 2px;
-	word-wrap: normal;
-	height: 400px;
-}
-</style>
 
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 	<a class="navbar-brand" href="/">Bedtools Sandbox</a>
@@ -186,9 +168,9 @@ textarea {
 	<div class="container">
 		<!-- bedtools CLI -->
 		<CommandLine
-			command={Lesson.command}
 			info={UI.info}
 			error={UI.error}
+			bind:command={UI.cmd}
 			on:execute={d => run(d.detail.program, d.detail.parameters)}
 			disabled={!UI.ready} />
  
