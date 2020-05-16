@@ -1,6 +1,6 @@
 <script>
 // Exports
-export let beds = [];  // Format: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
+export let beds = [];  // Format: [{ name: "test.bed", contents: "chr1\t123\t456", color: "blue" }, ...]
 
 // Imports
 import { min, max } from "d3-array";
@@ -23,6 +23,7 @@ let width = 800;
 // BED file names and intervals
 $: beds = beds.filter(bed => bed.contents != "");
 $: names = beds.map(bed => bed.name);
+$: colors = beds.map(bed => bed.color || "blue");
 $: datasets = beds.map(bed => parseBed(bed.contents));
 
 // SVG coordinates
@@ -66,7 +67,7 @@ function parseLine(line) {
 				width={xScale(interval.end) - xScale(interval.start)}
 				y="0"
 				height="25"
-				fill="blue"
+				fill={colors[i]}
 			/>
 			{/each}
 		</g>
