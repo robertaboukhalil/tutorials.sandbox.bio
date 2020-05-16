@@ -12,7 +12,7 @@ import { scaleLinear } from "d3-scale";
 // -----------------------------------------------------------------------------
 
 let names, datasets, xMin, xMax, xScale;
-let height = 400;
+let height = 150;
 let width = 800;
 
 
@@ -21,6 +21,7 @@ let width = 800;
 // -----------------------------------------------------------------------------
 
 // BED file names and intervals
+$: beds = beds.filter(bed => bed.contents != "");
 $: names = beds.map(bed => bed.name);
 $: datasets = beds.map(bed => parseBed(bed.contents));
 
