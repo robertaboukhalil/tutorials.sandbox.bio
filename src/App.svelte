@@ -1,5 +1,6 @@
 <script>
-// TODO: 
+// TODO:
+// - Optimize reactive statements (some get triggered very often)
 // - Tell user if answer is correct
 // - Move to next lesson
 // - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
