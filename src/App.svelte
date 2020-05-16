@@ -5,7 +5,7 @@
 // - Tell user if answer is correct
 // - Move to next lesson
 // - Dropdown to browse other lessons
-// - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
+// - Initialize lessonNb state based on localStorage (i.e. where the user left off)
 // - How does it look on mobile?
 
 import { onMount } from "svelte";
@@ -25,7 +25,6 @@ import CommandLine from "./CommandLine.svelte";
 let Bedtools = new Aioli("bedtools/2.29.2");
 
 // Lesson in progress
-let Lesson = {};
 let BedUser = {
 	name: "Yours",
 	contents: "",
@@ -43,14 +42,16 @@ let BedTabs = {
 	},
 };
 
+
+// Current lesson
+let lesson = {};
+let lessonNb = 0;
+
 // UI State
-let UI = {
-	lesson: 0,
-	ready: false,
-	error: "",
-	info: "Enter the <i>bedtools</i> command that will generate the desired output:",
-	cmd: "bedtools intersect -a a.bed -b b.bed"
-};
+let uiReady = false;
+let uiError = "";
+let uiInfo = "Enter the <i>bedtools</i> command that will generate the desired output:"
+let uiCmd = "bedtools intersect -a a.bed -b b.bed";
 
 
 // -----------------------------------------------------------------------------
@@ -58,15 +59,15 @@ let UI = {
 // -----------------------------------------------------------------------------
 
 // Logic to update the lesson
-$: Lesson = Lessons[UI.lesson];
-$: init(Lesson.inputs);
-$: BedUser.color = BedUser.contents == Lesson.goal.contents ? "green" : "red";
+$: lesson = Lessons[lessonNb];
+$: init(lesson.inputs);
+$: BedUser.color = BedUser.contents == lesson.goal.contents ? "green" : "red";
 
 // Update tabs to display
 $: BedTabs.input = [
 	BedTabs.usage,
-	Lesson.goal,
-	...Lesson.inputs
+	lesson.goal,
+	...lesson.inputs
 ];
 
 $: BedTabs.output = [BedUser];
@@ -99,7 +100,7 @@ async function init(bedFiles)
 	await Bedtools.fs("chdir", directory);
 
 	// Get usage of relevant bedtools command
-	let usage = await Bedtools.exec(Lesson.usage);
+	let usage = await Bedtools.exec(lesson.usage);
 	BedTabs.usage.contents = usage.stderr;
 }
 
@@ -112,20 +113,20 @@ async function init(bedFiles)
 async function run(program, parameters)
 {
 	// Only accept bedtools commands
-	UI.error = "";
+	uiError = "";
 	if(program != "bedtools") {
-		UI.error = "Only bedtools commands are accepted.";
+		uiError = "Only bedtools commands are accepted.";
 		return;
 	}
 
 	// Run bedtools with the parameters provided
-	UI.ready = false;
+	uiReady = false;
 	let output = await Bedtools.exec(parameters);
 
 	// Save stdout/stderr
 	BedUser.error = output.stderr != "";
 	BedUser.contents = BedUser.error ? output.stderr.trim() : output.stdout.trim();
-	UI.ready = true;
+	uiReady = true;
 }
 
 
@@ -138,8 +139,8 @@ onMount(async () => {
 	await Bedtools.init();
 	await Bedtools.exec("--version").then(d => console.log(d.stdout));
 
-	UI.ready = true;
-	UI.lesson = 1;
+	uiReady = true;
+	lessonNb = 1;
 });
 
 
@@ -163,24 +164,24 @@ onMount(async () => {
 <main role="main">
 	<div class="jumbotron mt-4 pb-3">
 		<div class="container">
-			<h2 class="display-5">{Lesson.title}</h2>
-			<p class="lead">{Lesson.description}</p>
+			<h2 class="display-5">{lesson.title}</h2>
+			<p class="lead">{lesson.description}</p>
 		</div>
 	</div>
 
 	<div class="container">
 		<!-- bedtools CLI -->
 		<CommandLine
-			info={UI.info}
-			error={UI.error}
-			bind:command={UI.cmd}
+			info={uiInfo}
+			error={uiError}
+			bind:command={uiCmd}
 			on:execute={d => run(d.detail.program, d.detail.parameters)}
-			disabled={!UI.ready} />
+			disabled={!uiReady} />
  
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[ ...Lesson.inputs, Lesson.goal, BedUser ]} />
+				<BedViz beds={[ ...lesson.inputs, lesson.goal, BedUser ]} />
 			</div>
 		</div>
 
