@@ -11,28 +11,29 @@ import CommandLine from "./CommandLine.svelte";
 // Globals
 // -----------------------------------------------------------------------------
 
-let Filename1 = "a.bed";
-let Filename2 = "b.bed"
-
 let Bedtools = new Aioli("bedtools/2.29.2");
-let Bed1 = `
-chr1	10	20	a1	1	+
-chr1	100	200	a2	2	-
-`.trim();
-let Bed2 = `
-chr1	20	30	b1	1	+
-chr1	90	101	b2	2	-
-chr1	100	110	b3	3	+
-chr1	200	210	b4	4	+
-`.trim();
-let StdOut = "";
+let StdOut = "Loading...";
 let StdErr = "";
-let Cmd = `bedtools intersect -a ${Filename1} -b ${Filename2}`;
 
+// Lesson in progress
+let Lesson = {};
+
+// UI State
 let UI = {
+	ready: false,
+	lesson: 0,
 	error: "",
 	info: "Enter the <i>bedtools</i> command that will generate the desired output:"
 };
+
+
+// -----------------------------------------------------------------------------
+// Reactive statements
+// -----------------------------------------------------------------------------
+
+// Logic to update the lesson
+$: Lesson = Lessons[UI.lesson];
+$: init(Lesson.inputs);
 
 
 // -----------------------------------------------------------------------------
@@ -56,7 +57,9 @@ async function init(bedFiles)
 
 	// At this point, the files are mounted to /data. Let's update the working
 	// directory so users can refer to the .bed files without specifying /data.
-	let directory = files[0].directory;  // this should always be /data, but just in case
+	if(files.length == 0)
+		return;
+	let directory = files[0].directory;
 	await Bedtools.fs("chdir", directory);
 }
 
@@ -65,12 +68,12 @@ async function init(bedFiles)
  * 
  * @param {String} program Should always be "bedtools" 
  * @param {String} parameters Space-separated parameters to send to bedtools
- * @return {Object} Result of the command: { stdout: "<stdout>", stderr: "<stderr>" }  # FIXME:
  */
 async function run(program, parameters)
 {
 	// Only accept bedtools commands
 	UI.error = "";
+	UI.ready = false;
 	if(program != "bedtools") {
 		UI.error = "Only bedtools commands are accepted.";
 		return;
@@ -79,8 +82,9 @@ async function run(program, parameters)
 	// Run bedtools with the parameters provided
 	let output = await Bedtools.exec(parameters);
 	StdOut = output.stdout;
-	StdErr = output.stderr.replace(/\n/g, '<br>');
-	console.log(output);
+	StdErr = output.stderr.replace(/\n/g, "<br>");
+
+	UI.ready = true;
 }
 
 
@@ -93,11 +97,8 @@ onMount(async () => {
 	await Bedtools.init();
 	await Bedtools.exec("--version").then(d => console.log(d.stdout));
 
-	// Initialize BED files
-	init([
-		{ name: "a.bed", contents: Bed1 },
-		{ name: "b.bed", contents: Bed2 },
-	]);
+	UI.ready = true;
+	UI.lesson = 1;
 });
 
 
@@ -136,24 +137,25 @@ textarea {
 <main role="main">
 	<div class="jumbotron mt-4 pb-3">
 		<div class="container">
-			<h2 class="display-5">Lesson 1</h2>
-			<p class="lead">Using bedtools intersect to do xyz</p>
+			<h2 class="display-5">{Lesson.title}</h2>
+			<p class="lead">{Lesson.description}</p>
 		</div>
 	</div>
 
 	<div class="container">
 		<!-- bedtools CLI -->
-        <CommandLine
-            command={Cmd}
-            info={UI.info}
-            error={UI.error}
-            on:execute={d => run(d.detail.program, d.detail.parameters)}
-        />
+		<CommandLine
+			command={Lesson.command}
+			info={UI.info}
+			error={UI.error}
+			on:execute={d => run(d.detail.program, d.detail.parameters)}
+			disabled={!UI.ready}
+		/>
  
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
+				<BedViz beds={[ ...Lesson.inputs, ...Lesson.goals ]} />
 			</div>
 		</div>
 
