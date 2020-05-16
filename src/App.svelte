@@ -36,39 +36,8 @@ let UI = {
 
 
 // -----------------------------------------------------------------------------
-// Reactive Statements
+// Utility functions
 // -----------------------------------------------------------------------------
-
-$: bedtoolsIntersect(Cmd, Bed1, Bed2);
-
-async function bedtoolsIntersect(cmd, bed1, bed2)
-{
-	// Don't do anything until Aioli is done initializing
-	if(!Bedtools.ready)
-		return;
-
-	// Generate Blob objects from strings
-	let blob1 = new Blob([ bed1 ], { type: "text/plain" });
-	let blob2 = new Blob([ bed2 ], { type: "text/plain" });
-
-	// Mount those Blobs as files on the virtual file system
-	let f1 = await Aioli.mount(blob1, Filename1);
-	let f2 = await Aioli.mount(blob2, Filename2);
-
-	// Run bedtools insersect
-	let final_command = cmd.replace("bedtools ", "")
-													.replace(Filename1, f1.path)
-													.replace(Filename2, f2.path)
-													.trim();
-
-	console.log("command:", final_command);
-	let output = await Bedtools.exec(final_command);
-	console.warn("stderr:", output.stderr);
-	console.log("stdout:", output.stdout);
-	StdOut = output.stdout;
-	StdErr = output.stderr.replace(/\n/g, '<br>');
-}
-
 
 /**
  * Initialize BED files for this lesson
@@ -109,6 +78,8 @@ async function run(program, parameters)
 
 	// Run bedtools with the parameters provided
 	let output = await Bedtools.exec(parameters);
+	StdOut = output.stdout;
+	StdErr = output.stderr.replace(/\n/g, '<br>');
 	console.log(output);
 }
 
@@ -171,8 +142,7 @@ textarea {
 	</div>
 
 	<div class="container">
-
-		<!-- bedtools command -->
+		<!-- bedtools CLI -->
 		<div class="row">
 			<div class="col-12">
 				<small class="text-muted">
@@ -196,12 +166,14 @@ textarea {
 			</div>
 		</div>
 
+		<!-- Visualize .bed files -->
+		<div class="row">
+			<div class="col-12">
+				<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
+			</div>
+		</div>
 
-
-<br /><br /><br /><br />
-
-		<input type="text" class="form-control" bind:value={Cmd} />
-		<BedViz beds={[Bed1, Bed2, StdOut]} names={[Filename1, Filename2, "Your output"]} />
+		<!-- TODO: Replace with Tab component -->
 		<div class="row">
 			<!-- Input -->
 			<div class="col-md-4 mb-2">
