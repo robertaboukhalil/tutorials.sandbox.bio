@@ -3,11 +3,13 @@
 // - Check if output matches expected answer
 // - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
 // - Replace hardcoded textareas with Tab component
+// - How does it look on mobile?
 
 import { onMount } from "svelte";
 import { Aioli } from "@biowasm/aioli";
-
 import { Lessons } from "./lessons.js";
+
+import Tabs from "./Tabs.svelte";
 import BedViz from "./BedViz.svelte";
 import CommandLine from "./CommandLine.svelte";
 
@@ -18,22 +20,31 @@ import CommandLine from "./CommandLine.svelte";
 
 // Bedtools WebAssembly module
 let Bedtools = new Aioli("bedtools/2.29.2");
-let StdOut = "Loading...";
-let StdErr = "";
 
 // Lesson in progress
 let Lesson = {};
 let BedUser = {
-	name: "yours.bed",
-	contents: ""
+	name: "Yours",
+	contents: "",
+	color: "red"
 }
+
+// Tabs to show user
+let BedTabs = {
+	input: {},
+	output: {},
+	usage: {
+		name: "Usage",
+		contents: "Loading..."
+	},
+};
 
 // UI State
 let UI = {
-	ready: false,
 	lesson: 0,
+	ready: false,
 	error: "",
-	info: "Enter the <i>bedtools</i> command that will generate the desired output:"
+	info: "Enter the <i>bedtools</i> command that will generate the desired output:",
 };
 
 
@@ -44,6 +55,19 @@ let UI = {
 // Logic to update the lesson
 $: Lesson = Lessons[UI.lesson];
 $: init(Lesson.inputs);
+$: BedUser.color = BedUser.contents == Lesson.goal.contents ? "green" : "red";
+
+// Update tabs to display
+$: BedTabs.input = [
+	BedTabs.usage,
+	Lesson.goal,
+	...Lesson.inputs
+];
+
+$: BedTabs.output = [{
+	name: "Your Output",
+	contents: BedUser.contents
+}];
 
 
 // -----------------------------------------------------------------------------
@@ -71,6 +95,10 @@ async function init(bedFiles)
 		return;
 	let directory = files[0].directory;
 	await Bedtools.fs("chdir", directory);
+
+	// Get usage of relevant bedtools command
+	let usage = await Bedtools.exec(Lesson.usage);
+	BedTabs.usage.contents = usage.stderr;
 }
 
 /**
@@ -91,12 +119,12 @@ async function run(program, parameters)
 
 	// Run bedtools with the parameters provided
 	let output = await Bedtools.exec(parameters);
-	BedUser.contents = output.stdout;
 
-	// Display stdout/stderr
-	StdOut = output.stdout;
-	StdErr = output.stderr.replace(/\n/g, "<br>");
+	// // Display stdout/stderr
+	// StdOut = output.stdout;
+	// StdErr = output.stderr.replace(/\n/g, "<br>");
 
+	BedUser.contents = output.stdout.trim();
 	UI.ready = true;
 }
 
@@ -162,8 +190,7 @@ textarea {
 			info={UI.info}
 			error={UI.error}
 			on:execute={d => run(d.detail.program, d.detail.parameters)}
-			disabled={!UI.ready}
-		/>
+			disabled={!UI.ready} />
  
 		<!-- Visualize .bed files -->
 		<div class="row">
@@ -174,21 +201,12 @@ textarea {
 
 		<!-- Inputs and outputs -->
 		<div class="row">
-			{#each Lesson.inputs as bedFile}
-				<div class="col-md-4 mb-2">
-					<h4 class="mb-3">{bedFile.name}</h4>
-					<textarea class="form-control" rows="10" bind:value={bedFile.contents}></textarea>
-				</div>
-			{/each}
+			<div class="col-6">
+				<Tabs tabs={BedTabs.input} />
+			</div>
 
-			<div class="col-md-4 mb-2">
-				<h4 class="mb-3">Result</h4>
-				<div id="output">
-					{@html StdOut}
-					<strong><span style="color: red;">
-						{@html StdErr}
-					</span></strong>
-				</div>
+			<div class="col-6">
+				<Tabs tabs={BedTabs.output} />
 			</div>
 		</div>
 	</div>
