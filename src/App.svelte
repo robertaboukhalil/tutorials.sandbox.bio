@@ -1,8 +1,8 @@
 <script>
-// TODO: move lesson logic into its own component
-
 import { onMount } from "svelte";
 import { Aioli } from "@biowasm/aioli";
+
+import { Lessons } from "./lessons.js";
 import BedViz from "./BedViz.svelte";
 import CommandLine from "./CommandLine.svelte";
 
