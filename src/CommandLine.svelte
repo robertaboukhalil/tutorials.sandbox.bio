@@ -2,20 +2,18 @@
 // Exports
 export let command = "";        // Command to execute (e.g. samtools --version)
 export let disabled = false;    // Whether to disable the input or not
-export let preload = [];        // Which Aioli tools to preload
 
 // Imports
-import { onMount, createEventDispatcher } from "svelte";
-import { Aioli } from "../public/aioli.js";  // FIXME: import { Aioli } from "@biowasm/aioli";
+import { createEventDispatcher } from "svelte";
 
 
 // -----------------------------------------------------------------------------
 // Globals
 // -----------------------------------------------------------------------------
 
-const dispatch = createEventDispatcher();
-// Aioli objects (key = tool name)
-let Tools = {};
+let dispatch = createEventDispatcher();  // used to communicate with parent component
+let program = null;                      // e.g. bedtools
+let parameters = null;                   // e.g. intersect -a a.bed -b b.bed
 
 
 // -----------------------------------------------------------------------------
@@ -31,44 +29,15 @@ $: parameters = command.replace(`${program} `, "");
 // Utility functions
 // -----------------------------------------------------------------------------
 
-// Initialize the Aioli Worker with a tool of interest
-async function initializeAioli(tool)
-{
-    let toolName, toolVersion;
-    [toolName, toolVersion] = tool.split("/");
-    console.log(`[CommandLine] Initializing ${toolName} v${toolVersion}`);
-
-    Tools[toolName] = new Aioli(tool);
-	await Tools[toolName].init();
-    console.log(`[CommandLine] Done initializing ${toolName} v${toolVersion}`);
-}
-
 // Execute a command
 function run()
 {
+    // Send a message to parent component about what to execute
     dispatch("execute", {
         program: program,
         parameters: parameters
     });
 }
-
-// Execute command when press Enter
-function handleKeydown(event)
-{
-    if(event.key == "Enter")
-        run();
-}
-
-
-// -----------------------------------------------------------------------------
-// On load
-// -----------------------------------------------------------------------------
-
-// Pre-load Aioli modules of interest
-onMount(async () => {
-    for(let tool of preload)
-        initializeAioli(tool);
-});
 
 
 // -----------------------------------------------------------------------------
@@ -83,11 +52,16 @@ onMount(async () => {
                 <span class="input-group-text">$</span>
             </div>
             <input
-                type="text" id="command" class="form-control form-control-lg" style="font-family:monospace;"
-                bind:value={command} on:keydown={handleKeydown}
-                disabled={disabled} autofocus>
+                type="text"
+                class="form-control form-control-lg"
+                style="font-family: monospace"
+                bind:value={command}
+                on:keydown={event => event.key == "Enter" ? run() : null}
+                disabled={disabled}
+                autofocus
+            >
             <div class="input-group-append">
-                <button class="btn btn-lg btn-primary" on:click={run}>
+                <button class="btn btn-lg btn-info" on:click={run}>
                     Run
                 </button>
             </div>
