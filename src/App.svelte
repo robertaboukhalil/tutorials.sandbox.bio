@@ -168,7 +168,7 @@ textarea {
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[ ...Lesson.inputs, ...Lesson.goals, BedUser ]} />
+				<BedViz beds={[ ...Lesson.inputs, Lesson.goal, BedUser ]} />
 			</div>
 		</div>
 

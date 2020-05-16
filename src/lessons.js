@@ -21,7 +21,7 @@ export const Lessons = [
 		description: "",
 		command: "Loading...",
 		inputs: [],
-		goals: []
+		goal: {}
 	},
 	{
 		title: "Lesson 1: bedtools intersect",
@@ -37,11 +37,10 @@ export const Lessons = [
 				contents: Bed2
 			}
 		],
-		goals: [
-			{
-				name: "goal.bed",
-				contents: Bed1_intersect_Bed2
-			}
-		]
+		goal: {
+			name: "Goal:",
+			color: "purple",
+			contents: Bed1_intersect_Bed2
+		}
 	}
 ];
