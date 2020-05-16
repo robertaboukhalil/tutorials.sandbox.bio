@@ -28,7 +28,7 @@ $: datasets = beds.map(bed => parseBed(bed.contents));
 
 // SVG coordinates
 $: xMin = min(datasets, bed => min(bed, d => d.start));
-$: xMax = max(datasets, bed => max(bed, d => d.start))
+$: xMax = max(datasets, bed => max(bed, d => d.end));
 $: xScale = scaleLinear().domain([xMin, xMax]).range([0, width]);
 
 
