@@ -1,8 +1,10 @@
 <script>
 // TODO:
 // - Optimize reactive statements (some get triggered very often)
+// - Move utility functions to utils.js?
 // - Tell user if answer is correct
 // - Move to next lesson
+// - Dropdown to browse other lessons
 // - Initialize UI.lesson state based on localStorage (i.e. where the user left off)
 // - How does it look on mobile?
 
@@ -29,7 +31,7 @@ let BedUser = {
 	contents: "",
 	color: "red",
 	error: false
-}
+};
 
 // Tabs to show user
 let BedTabs = {

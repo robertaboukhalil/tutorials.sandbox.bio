@@ -8,6 +8,10 @@ div {
     max-height: 350px;
     overflow: scroll;
 }
+
+.nav-item {
+    font-size: 20px;
+}
 </style>
 
 <ul class="nav nav-tabs mb-2">
