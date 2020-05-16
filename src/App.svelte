@@ -143,29 +143,13 @@ textarea {
 
 	<div class="container">
 		<!-- bedtools CLI -->
-		<div class="row">
-			<div class="col-12">
-				<small class="text-muted">
-					<span class="text-info">{@html UI.info}&nbsp;</span>
-				</small>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-12">
-				<CommandLine
-					command={Cmd}
-					on:execute={d => run(d.detail.program, d.detail.parameters)}
-				/>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-12">
-				<small class="text-muted">
-					<span class="text-danger">{@html UI.error}&nbsp;</span>
-				</small>
-			</div>
-		</div>
-
+        <CommandLine
+            command={Cmd}
+            info={UI.info}
+            error={UI.error}
+            on:execute={d => run(d.detail.program, d.detail.parameters)}
+        />
+ 
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">

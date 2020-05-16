@@ -2,6 +2,8 @@
 // Exports
 export let command = "";        // Command to execute (e.g. samtools --version)
 export let disabled = false;    // Whether to disable the input or not
+export let info = "";           // Info message to show above CLI
+export let error = "";          // Error message to show below CLI
 
 // Imports
 import { createEventDispatcher } from "svelte";
@@ -45,14 +47,16 @@ function run()
 // -----------------------------------------------------------------------------
 </script>
 
+<!-- Info message -->
 <div class="row">
 	<div class="col-12">
 		<small class="text-muted">
-			<span class="text-info">{@html UI.info}&nbsp;</span>
+			<span class="text-info">{@html info}&nbsp;</span>
 		</small>
 	</div>
 </div>
 
+<!-- CLI -->
 <div class="row">
 	<div class="col-12">
 		<div class="input-group">
@@ -74,5 +78,14 @@ function run()
 				</button>
 			</div>
 		</div>
+	</div>
+</div>
+
+<!-- Error message -->
+<div class="row">
+	<div class="col-12">
+		<small class="text-muted">
+			<span class="text-danger">{@html error}&nbsp;</span>
+		</small>
 	</div>
 </div>
