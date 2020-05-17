@@ -1,7 +1,5 @@
 <script>
 // TODO:
-// - Optimize reactive statements (some get triggered very often)
-// - Move utility functions to utils.js?
 // - Tell user if answer is correct
 // - Move to next lesson
 // - Dropdown to browse other lessons
