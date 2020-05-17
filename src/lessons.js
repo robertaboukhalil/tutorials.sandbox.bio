@@ -43,7 +43,6 @@ export const Lessons = [
 		],
 		goal: {
 			name: "Goal",
-			color: "purple",
 			contents: Bed1_intersect_Bed2
 		}
 	}

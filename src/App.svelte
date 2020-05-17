@@ -14,7 +14,6 @@ import Tabs from "./Tabs.svelte";
 import BedViz from "./BedViz.svelte";
 import CommandLine from "./CommandLine.svelte";
 
-
 // -----------------------------------------------------------------------------
 // Globals
 // -----------------------------------------------------------------------------
@@ -42,11 +41,14 @@ let uiCmd = "bedtools intersect -a a.bed -b b.bed";
 // -----------------------------------------------------------------------------
 
 // Logic to update the lesson
-$: lesson = Lessons[lessonNb];
-$: init(lesson.inputs);
+$: {
+	lesson = Lessons[lessonNb];
+	lesson.goal.type = "goal";
+	init(lesson.inputs);
+}
 
 // Check whether user output is correct
-$: bedUser.color = bedUser.contents == lesson.goal.contents ? "green" : "red";
+$: bedUser.type = bedUser.contents == lesson.goal.contents ? "correct" : "incorrect";
 
 
 // -----------------------------------------------------------------------------
@@ -153,7 +155,7 @@ onMount(async () => {
 		<!-- Visualize .bed files -->
 		<div class="row">
 			<div class="col-12">
-				<BedViz beds={[ ...lesson.inputs, lesson.goal, bedUser ]} />
+				<BedViz beds={[ ...lesson.inputs, lesson.goal, bedUser]} />
 			</div>
 		</div>
 

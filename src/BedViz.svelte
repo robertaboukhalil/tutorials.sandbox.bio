@@ -6,15 +6,26 @@ export let beds = [];  // Format: [{ name: "test.bed", contents: "chr1\t123\t456
 import { min, max } from "d3-array";
 import { scaleLinear } from "d3-scale";
 
-
 // -----------------------------------------------------------------------------
 // Globals
 // -----------------------------------------------------------------------------
 
-let names, datasets, xMin, xMax, xScale;
-let height = 150;
-let width = 800;
+let names, xMin, xMax, xScale;
+let datasets = [];
+let boundaries = [];
+let height = 120;
+let width = 1000;
 
+let padding = {left: 60, right: 0, top: 10, bottom: 10};
+let boxHeight = (height - padding.top - padding.bottom) / 4; // includes the boxGap.
+let boxGap = boxHeight * 0.10;
+
+const colorType = {
+	input: "#377eb8",
+	goal: "#984ea3",
+	correct: "#4daf4a",
+	incorrect: "#e41a1c"
+};
 
 // -----------------------------------------------------------------------------
 // Reactive statements:
@@ -23,14 +34,14 @@ let width = 800;
 // BED file names and intervals
 $: beds = beds.filter(bed => bed.contents != "");
 $: names = beds.map(bed => bed.name);
-$: colors = beds.map(bed => bed.color || "blue");
+$: colors = beds.map(bed => colorType[bed.type || "input"]);
 $: datasets = beds.map(bed => parseBed(bed.contents));
 
 // SVG coordinates
 $: xMin = min(datasets, bed => min(bed, d => d.start));
 $: xMax = max(datasets, bed => max(bed, d => d.end));
-$: xScale = scaleLinear().domain([xMin, xMax]).range([0, width]);
-
+$: xScale = scaleLinear().domain([xMin, xMax]).range([padding.left, width - padding.left - padding.right]);
+$: boundaries = [...new Set(datasets.map(bed => bed.map(d => [d.start, d.end])).flat(2))];
 
 // -----------------------------------------------------------------------------
 // Utility functions
@@ -58,19 +69,27 @@ function parseLine(line) {
 
 <div height={height} width={width}>
   <svg height={height} width={width}>
-	{#each datasets as row, i}
-		<g transform="translate(70, {i * 30})">
-			<text x="-70" y="20" fill="black">{names[i]}</text>
-			{#each row as interval}
-			<rect
-				x={xScale(interval.start)}
-				width={xScale(interval.end) - xScale(interval.start)}
-				y="0"
-				height="25"
-				fill={colors[i]}
-			/>
-			{/each}
-		</g>
-	{/each}
+		<!-- Dotted vertical lines at the boundaries of all intervals -->
+		{#each boundaries as edge}
+			<line
+				x1={xScale(edge)} x2={xScale(edge)}
+				y1={padding.top} y2={boxHeight * 4}
+				stroke-dasharray="3,3"
+				style="stroke:gray;stroke-width:1" />
+		{/each}
+		{#each datasets as row, i}
+			<g transform="translate(0, {padding.top + i * boxHeight})">
+				<text x="0" y={boxHeight/2 + boxGap} fill="black">{names[i]}</text>
+				{#each row as interval}
+				<rect
+					x={xScale(interval.start)}
+					width={xScale(interval.end) - xScale(interval.start)}
+					y="0"
+					height={boxHeight - boxGap}
+					fill={colors[i]}
+				/>
+				{/each}
+			</g>
+		{/each}
   </svg>
 </div>
