@@ -21,10 +21,10 @@ let boxHeight = (height - padding.top - padding.bottom) / 4; // includes the box
 let boxGap = boxHeight * 0.10;
 
 const colorType = {
-	input: "#377eb8",
-	goal: "#984ea3",
-	correct: "#4daf4a",
-	incorrect: "#e41a1c"
+	input: "#00ABE7",
+	goal: "#9393CB",
+	correct: "#3BA99C",
+	incorrect: "#EA526F"
 };
 
 // -----------------------------------------------------------------------------

@@ -27,7 +27,7 @@ export const Lessons = [
 		usage: null
 	},
 	{
-		title: "Lesson 1: bedtools intersect",
+		title: "<strong>Lesson 1:</strong> bedtools intersect",
 		description: "Using bedtools intersect to do xyz",
 		usage: "intersect --help",
 		command: `bedtools intersect -a a.bed -b b.bed`,
