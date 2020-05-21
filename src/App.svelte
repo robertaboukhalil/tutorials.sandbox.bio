@@ -33,8 +33,8 @@ let bedUsage = { name: "Usage", contents: "Loading..." };
 // UI State
 let uiReady = false;
 let uiError = "";
-let uiInfo = "Enter the <i>bedtools</i> command that will generate the desired output:"
-let uiCmd = "bedtools intersect -a a.bed -b b.bed";
+let uiInfo = "";
+let uiCmd = "Loading...";
 
 
 // -----------------------------------------------------------------------------
@@ -45,7 +45,11 @@ let uiCmd = "bedtools intersect -a a.bed -b b.bed";
 $: {
 	lesson = Lessons[lessonNb];
 	lesson.goal.type = "goal";
-	init(lesson.inputs);
+	if(lessonNb > 0) {
+		uiInfo = `<strong>Lesson Goal</strong>: Enter a <kbd>bedtools ${lesson.tool}</kbd> command ${lesson.description}:`;
+		uiCmd = lesson.command;
+		init(lesson.inputs);
+	}
 }
 
 // Check whether user output is correct
@@ -136,26 +140,24 @@ onMount(async () => {
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="collapse navbar-collapse border-left border-right pl-2 pr-0 col-4" id="navbarNavDropdown">
+		<div class="collapse navbar-collapse border-left pl-2 pr-0" id="navbarNavDropdown">
 			<ul class="navbar-nav">
 				<li class="nav-item dropdown">
 					<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 						{#each Lessons as linkout, i}
 							{#if i > 0}
-								<a class="dropdown-item" href="#" on:click={() => lessonNb = i}>{@html linkout.title}</a>
+								<a class="dropdown-item" href="#" on:click={() => lessonNb = i}><strong>Lesson {i}:</strong> {linkout.title}</a>
 							{/if}
 						{/each}
 					</div>
 
+					{#if lessonNb > 0}
 					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{@html lesson.title}
+						<strong>Lesson {lessonNb}:</strong> {lesson.title}
 					</a>
+					{/if}
 				</li>
 			</ul>
-		</div>
-
-		<div class="collapse navbar-collapse pl-3" id="navbarNavDropdown">
-			<small>{@html lesson.description}</small>
 		</div>
 	</div>
 </nav>
@@ -167,19 +169,19 @@ onMount(async () => {
 		<CommandLine
 			info={uiInfo}
 			error={uiError}
-			bind:command={uiCmd}
+			command={uiCmd}
 			on:execute={d => run(d.detail.program, d.detail.parameters)}
 			disabled={!uiReady} />
  
 		<!-- Visualize .bed files -->
-		<div class="row">
+		<div class="row mt-2">
 			<div class="col-12">
 				<BedViz beds={[ ...lesson.inputs, lesson.goal, bedUser]} />
 			</div>
 		</div>
 
 		<!-- Inputs and outputs -->
-		<div class="row">
+		<div class="row mt-2">
 			<div class="col-6">
 				<Tabs tabs={[ bedUsage, ...lesson.inputs, lesson.goal ]} />
 			</div>

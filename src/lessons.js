@@ -19,18 +19,20 @@ export const Lessons = [
 	{
 		title: "Loading...",
 		description: "",
+		usage: null,
+		tool: "",
 		command: "Loading...",
 		inputs: [],
 		goal: {
-			name: "Loading..."
-		},
-		usage: null
+			name: ""
+		}
 	},
 	{
-		title: "<strong>Lesson 1:</strong> bedtools intersect",
-		description: "Using bedtools intersect to do xyz",
+		title: "bedtools intersect to do xyz",
+		description: "that returns the common regions between the files <code>a.bed</code> and <code>b.bed</code>",
 		usage: "intersect --help",
-		command: `bedtools intersect -a a.bed -b b.bed`,
+		tool: "intersect",
+		command: `bedtools intersect`,
 		inputs: [
 			{
 				name: "a.bed",
@@ -47,10 +49,11 @@ export const Lessons = [
 		}
 	},
 	{
-		title: "<strong>Lesson 2:</strong> bedtools merge",
-		description: "Using bedtools intersect to do xyz part 2",
-		usage: "intersect --help",
-		command: `bedtools intersect -a a.bed -b b.bed`,
+		title: "bedtools merge to do abc",
+		description: "that merges overlapping regions between the two <code>.bed</code> files",
+		usage: "merge --help",
+		tool: "merge",
+		command: `bedtools merge`,
 		inputs: [
 			{
 				name: "a.bed",

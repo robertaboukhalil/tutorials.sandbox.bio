@@ -50,9 +50,9 @@ function run()
 <!-- Info message -->
 <div class="row">
 	<div class="col-12">
-		<small class="text-muted">
+		<span class="text-muted">
 			<span class="text-info">{@html info}&nbsp;</span>
-		</small>
+		</span>
 	</div>
 </div>
 
