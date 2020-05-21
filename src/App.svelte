@@ -124,27 +124,45 @@ onMount(async () => {
 // -----------------------------------------------------------------------------
 </script>
 
-<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-	<a class="navbar-brand" href="/">Bedtools Sandbox</a>
-	<div class="collapse navbar-collapse">
-		<ul class="navbar-nav mr-auto"></ul>
-		<ul class="navbar-nav">
-			<li class="nav-item active">
-				<a class="nav-link" href="/">Code</a>
-			</li>
-		</ul>
+<style>
+.bg-light {
+	background-color: rgb(232, 240, 240) !important;
+}
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<div class="container">
+		<span class="navbar-brand">&#x1F9EC; Bedtools Sandbox</span>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse border-left border-right pl-2 pr-0 col-4" id="navbarNavDropdown">
+			<ul class="navbar-nav">
+				<li class="nav-item dropdown">
+					<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+						{#each Lessons as linkout, i}
+							{#if i > 0}
+								<a class="dropdown-item" href="#" on:click={() => lessonNb = i}>{@html linkout.title}</a>
+							{/if}
+						{/each}
+					</div>
+
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						{@html lesson.title}
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="collapse navbar-collapse pl-3" id="navbarNavDropdown">
+			<small>{@html lesson.description}</small>
+		</div>
 	</div>
 </nav>
 
-<main role="main">
-	<div class="jumbotron mt-4 pb-3">
-		<div class="container">
-			<h2 class="display-5">{lesson.title}</h2>
-			<p class="lead">{lesson.description}</p>
-		</div>
-	</div>
 
-	<div class="container">
+<main role="main">
+	<div class="container mt-3">
 		<!-- bedtools CLI -->
 		<CommandLine
 			info={uiInfo}
