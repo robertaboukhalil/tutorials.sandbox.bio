@@ -57,7 +57,7 @@ function run()
 </div>
 
 <!-- CLI -->
-<div class="row">
+<div class="row mt-2">
 	<div class="col-12">
 		<div class="input-group">
 			<div class="input-group-prepend">
