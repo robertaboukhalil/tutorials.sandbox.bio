@@ -45,5 +45,21 @@ export const Lessons = [
 			name: "Goal",
 			contents: Bed1_intersect_Bed2
 		}
+	},
+	{
+		title: "<strong>Lesson 2:</strong> bedtools merge",
+		description: "Using bedtools intersect to do xyz part 2",
+		usage: "intersect --help",
+		command: `bedtools intersect -a a.bed -b b.bed`,
+		inputs: [
+			{
+				name: "a.bed",
+				contents: Bed1
+			},
+		],
+		goal: {
+			name: "Goal",
+			contents: Bed1_intersect_Bed2
+		}
 	}
 ];
