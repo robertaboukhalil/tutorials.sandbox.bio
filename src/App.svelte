@@ -1,7 +1,6 @@
 <script>
 // TODO:
-// - Tell user if answer is correct
-// - Move to next lesson
+// - Auto-scroll to bottom of "Yours" tab
 // - Add ability to show a hint to the user
 // - Intro lesson that introduces bedtools and what it is
 // - Initialize lessonNb state based on localStorage (i.e. where the user left off)
@@ -28,7 +27,10 @@ let lesson = {};
 let lessonNb = 0;
 // TODO: load this from localStorage
 let lessonHistory = {
-	"intersect-1": true
+	"lesson-id": {
+		success: false,
+		answer: "<user input>"
+	}
 };
 
 // Bed Files
@@ -50,6 +52,7 @@ let uiCmd = "Loading...";
 $: {
 	lesson = Lessons[lessonNb];
 	lesson.goal.type = "goal";
+	bedUser.contents = "";
 	if(lessonNb > 0) {
 		uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>bedtools ${lesson.tool}</code> command ${lesson.description}:`;
 		uiCmd = lesson.command;
@@ -57,9 +60,8 @@ $: {
 	}
 }
 
-// Check whether user output is correct
-$: bedUser.type = bedUser.contents == lesson.goal.contents ? "correct" : "incorrect";
-$: lessonHistory[lesson.id] = bedUser.type == "correct";
+// TODO: save this to localStorage
+$: console.log(lessonHistory);
 
 
 // -----------------------------------------------------------------------------
@@ -86,8 +88,14 @@ async function init(bedFiles)
 		return;
 	await bedtools.fs("chdir", files[0].directory);
 
+	// If user was here before, show their answer
+	if(lessonHistory[lesson.id]) {
+		uiCmd = `bedtools ${lessonHistory[lesson.id].answer}`;
+		run("bedtools", lessonHistory[lesson.id].answer, true);
+	}
+
 	// Get documentation for relevant bedtools command
-	bedUsage.contents = (await bedtools.exec(lesson.usage)).stderr;
+	bedUsage.contents = (await bedtools.exec(lesson.usage)).stderr.trim();
 }
 
 /**
@@ -95,7 +103,7 @@ async function init(bedFiles)
  * @param {String} program Should always be "bedtools" 
  * @param {String} parameters Space-separated parameters to send to bedtools
  */
-async function run(program, parameters)
+async function run(program, parameters, silent=false)
 {
 	// Only accept bedtools commands
 	uiError = "";
@@ -112,6 +120,18 @@ async function run(program, parameters)
 	bedUser.error = out.stderr != "";
 	bedUser.contents = (out.stdout + out.stderr).trim();
 	uiReady = true;
+
+	// Check whether user output is correct
+	let success = bedUser.contents == lesson.goal.contents
+	bedUser.type = success ? "correct" : "incorrect";
+	lessonHistory[lesson.id] = {
+		success: success,
+		answer: parameters
+	};
+
+	// If answer is correct, let the user know
+	if(success && !silent)
+		jQuery("#modalSuccess").modal();
 }
 
 
@@ -156,7 +176,7 @@ onMount(async () => {
 									class="btn btn-link dropdown-item pb-2 pt-2"
 									style="vertical-align: baseline;"
 									on:click={() => lessonNb = i}>
-									<i class="fas fa-check" style="color: {lessonHistory[linkout.id] ? "#3BA99C" : "#CCCCCC"}"></i>
+									<i class="fas fa-check" style="color: {lessonHistory[linkout.id] && lessonHistory[linkout.id].success ? "#3BA99C" : "#CCCCCC"}"></i>
 									&nbsp;
 									<strong>Lesson {i}:</strong> {linkout.title}
 								</button>
@@ -205,3 +225,20 @@ onMount(async () => {
 		</div>
 	</div>
 </main>
+
+<!-- Success Modal -->
+<div id="modalSuccess" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">That's correct!</h5>
+			</div>
+			<!-- <div class="modal-body">
+				<p>Modal body text.</p>
+			</div> -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
+			</div>
+		</div>
+	</div>
+</div>

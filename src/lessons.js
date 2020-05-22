@@ -17,7 +17,7 @@ chr1	85	90	a3	2	+
 
 export const Lessons = [
 	{
-		id: "loading",
+		id: "lesson-loading",
 		title: "Loading...",
 		description: "",
 		usage: null,

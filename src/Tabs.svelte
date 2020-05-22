@@ -10,15 +10,15 @@ div {
 }
 </style>
 
-<ul class="nav nav-tabs mb-2">
+<ul class="nav nav-tabs mb-0">
 	{#each tabs as tab}
 		<li class="nav-item">
-			<a class="nav-link" href="#" class:active={active == tab.name} on:click={() => active = tab.name}>{tab.name}</a>
+				<a class="nav-link" href="#" class:active={active == tab.name} on:click={() => active = tab.name}>{tab.name}</a>
 		</li>
 	{/each}
 </ul>
 
-<div>
+<div class="border-bottom border-right border-left border-default p-3">
 	{#each tabs as tab}
 		{#if active == tab.name}
 			{#if tab.error}
