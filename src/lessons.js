@@ -17,22 +17,26 @@ chr1	85	90	a3	2	+
 
 export const Lessons = [
 	{
+		id: "loading",
 		title: "Loading...",
 		description: "",
 		usage: null,
 		tool: "",
 		command: "Loading...",
+		hint: "",
 		inputs: [],
 		goal: {
 			name: ""
 		}
 	},
 	{
+		id: "intersect-1",
 		title: "bedtools intersect to do xyz",
-		description: "that returns the common regions between the files <code>a.bed</code> and <code>b.bed</code>",
+		description: "that generates overlapping regions between <code>a.bed</code> and <code>b.bed</code>",
 		usage: "intersect --help",
 		tool: "intersect",
-		command: `bedtools intersect`,
+		command: "bedtools intersect",
+		hint: "",
 		inputs: [
 			{
 				name: "a.bed",
@@ -49,11 +53,13 @@ export const Lessons = [
 		}
 	},
 	{
+		id: "merge-1",
 		title: "bedtools merge to do abc",
 		description: "that merges overlapping regions between the two <code>.bed</code> files",
 		usage: "merge --help",
 		tool: "merge",
-		command: `bedtools merge`,
+		command: "bedtools merge",
+		hint: "",
 		inputs: [
 			{
 				name: "a.bed",

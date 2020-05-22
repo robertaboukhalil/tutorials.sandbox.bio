@@ -2,7 +2,8 @@
 // TODO:
 // - Tell user if answer is correct
 // - Move to next lesson
-// - Dropdown to browse other lessons
+// - Add ability to show a hint to the user
+// - Intro lesson that introduces bedtools and what it is
 // - Initialize lessonNb state based on localStorage (i.e. where the user left off)
 // - How does it look on mobile?
 
@@ -25,6 +26,10 @@ let bedtools = new Aioli("bedtools/2.29.2");
 // Current lesson
 let lesson = {};
 let lessonNb = 0;
+// TODO: load this from localStorage
+let lessonHistory = {
+	"intersect-1": true
+};
 
 // Bed Files
 let bedUser = { name: "Yours", contents: "" };
@@ -46,7 +51,7 @@ $: {
 	lesson = Lessons[lessonNb];
 	lesson.goal.type = "goal";
 	if(lessonNb > 0) {
-		uiInfo = `<strong>Lesson Goal</strong>: Enter a <kbd>bedtools ${lesson.tool}</kbd> command ${lesson.description}:`;
+		uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>bedtools ${lesson.tool}</code> command ${lesson.description}:`;
 		uiCmd = lesson.command;
 		init(lesson.inputs);
 	}
@@ -54,6 +59,7 @@ $: {
 
 // Check whether user output is correct
 $: bedUser.type = bedUser.contents == lesson.goal.contents ? "correct" : "incorrect";
+$: lessonHistory[lesson.id] = bedUser.type == "correct";
 
 
 // -----------------------------------------------------------------------------
@@ -134,7 +140,7 @@ onMount(async () => {
 }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light pt-4 pb-4">
 	<div class="container">
 		<span class="navbar-brand">&#x1F9EC; Bedtools Sandbox</span>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,15 +152,22 @@ onMount(async () => {
 					<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 						{#each Lessons as linkout, i}
 							{#if i > 0}
-								<a class="dropdown-item" href="#" on:click={() => lessonNb = i}><strong>Lesson {i}:</strong> {linkout.title}</a>
+								<button
+									class="btn btn-link dropdown-item pb-2 pt-2"
+									style="vertical-align: baseline;"
+									on:click={() => lessonNb = i}>
+									<i class="fas fa-check" style="color: {lessonHistory[linkout.id] ? "#3BA99C" : "#CCCCCC"}"></i>
+									&nbsp;
+									<strong>Lesson {i}:</strong> {linkout.title}
+								</button>
 							{/if}
 						{/each}
 					</div>
 
 					{#if lessonNb > 0}
-					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<btn class="btn btn-link nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<strong>Lesson {lessonNb}:</strong> {lesson.title}
-					</a>
+					</btn>
 					{/if}
 				</li>
 			</ul>
