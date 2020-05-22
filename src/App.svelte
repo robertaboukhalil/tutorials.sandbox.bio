@@ -220,7 +220,7 @@ onMount(async () => {
 			</div>
 
 			<div class="col-6">
-				<Tabs tabs={[ bedUser ]} />
+				<Tabs tabs={[ bedUser ]} scroll="true" />
 			</div>
 		</div>
 	</div>

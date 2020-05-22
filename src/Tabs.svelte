@@ -1,6 +1,36 @@
 <script>
+// Exports
 export let tabs = [];
 export let active = tabs.length == 0 ? "" : tabs[0].name;
+export let scroll = false;
+
+// Imports
+import { afterUpdate } from "svelte";
+
+
+// -----------------------------------------------------------------------------
+// Globals
+// -----------------------------------------------------------------------------
+
+let tab = null;
+
+// Once DOM is updated, scroll to the bottom of the div
+afterUpdate(() => {
+	if(scroll)
+		tab.scrollTop = tab.scrollHeight;
+});
+
+
+// -----------------------------------------------------------------------------
+// Reactive Statements
+// -----------------------------------------------------------------------------
+
+$: tabActive = tabs.filter(t => t.name == active).pop();
+
+
+// -----------------------------------------------------------------------------
+// HTML
+// -----------------------------------------------------------------------------
 </script>
 
 <style>
@@ -18,14 +48,6 @@ div {
 	{/each}
 </ul>
 
-<div class="border-bottom border-right border-left border-default p-3">
-	{#each tabs as tab}
-		{#if active == tab.name}
-			{#if tab.error}
-				<code>{tab.contents}</code>
-			{:else}
-				<pre>{tab.contents}</pre>
-			{/if}
-		{/if}
-	{/each}
+<div bind:this={tab} class="border-bottom border-right border-left border-default p-3">
+	<pre>{tabActive.contents}<br /><br /></pre>
 </div>
