@@ -13,6 +13,7 @@ import { afterUpdate } from "svelte";
 // -----------------------------------------------------------------------------
 
 let tab = null;
+let contents = "";
 
 // Once DOM is updated, scroll to the bottom of the div
 afterUpdate(() => {
@@ -26,7 +27,7 @@ afterUpdate(() => {
 // -----------------------------------------------------------------------------
 
 $: tabActive = tabs.filter(t => t.name == active).pop();
-$: contents = tabActive.contents.replace(/(.*ERROR.*)/gi, '<span style="padding:10px; border:3px dotted red;">$1</span>');
+$: contents = tabActive.contents.replace(/(.*error:.*)/gi, '<span style="padding:10px; border:3px dotted red;">$1</span>');
 
 
 // -----------------------------------------------------------------------------
