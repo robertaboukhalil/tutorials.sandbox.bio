@@ -1,9 +1,9 @@
 <script>
 // Exports
 export let command = "";        // Command to execute (e.g. samtools --version)
-export let disabled = false;    // Whether to disable the input or not
 export let info = "";           // Info message to show above CLI
 export let error = "";          // Error message to show below CLI
+export let disabled = false;    // Whether to disable the input or not
 
 // Imports
 import { createEventDispatcher } from "svelte";
@@ -15,17 +15,16 @@ import { createEventDispatcher } from "svelte";
 
 let dispatch = createEventDispatcher();  // used to communicate with parent component
 let program = null;                      // e.g. bedtools
-let parameters = null;                   // e.g. intersect -a a.bed -b b.bed
-let cmdChanged = true;					 // set to true when user changes command entered
+let args = null;                         // e.g. intersect -a a.bed -b b.bed
 
 
 // -----------------------------------------------------------------------------
 // Reactive Statements
 // -----------------------------------------------------------------------------
 
-// Split program name from parameters
+// Split program name from args
 $: program = command.split(" ").shift();
-$: parameters = command.replace(`${program} `, "");
+$: args = command.replace(`${program} `, "");
 
 
 // -----------------------------------------------------------------------------
@@ -36,19 +35,12 @@ $: parameters = command.replace(`${program} `, "");
 function run()
 {
 	// Send a message to parent component about what to execute
-	cmdChanged = false;
+	disabled = true;
 	dispatch("execute", {
 		program: program,
-		parameters: parameters
+		args: args,
+		done: () => disabled = false
 	});
-}
-
-// Handle changing textbox
-function handleKeyDown(event)
-{
-	cmdChanged = true;
-	if(event.key == "Enter")
-		run();
 }
 
 
@@ -56,6 +48,12 @@ function handleKeyDown(event)
 // HTML
 // -----------------------------------------------------------------------------
 </script>
+
+<style>
+input {
+	font-family: monospace;
+}
+</style>
 
 <!-- Info message -->
 <div class="row">
@@ -76,14 +74,16 @@ function handleKeyDown(event)
 			<input
 				type="text"
 				class="form-control form-control-lg"
-				style="font-family: monospace"
-				bind:value={command}
-				on:keydown={handleKeyDown}
 				disabled={disabled}
-				autofocus
-			>
+				bind:value={command}
+				on:keydown={event => event.key == "Enter" ? run() : null}
+			/>
 			<div class="input-group-append">
-				<button class="btn btn-lg btn-{cmdChanged ? "info" : "secondary"}" on:click={run}>
+				<button
+					class="btn btn-lg btn-info"
+					disabled={disabled}
+					on:click={run}
+				>
 					Run
 				</button>
 			</div>
