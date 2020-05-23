@@ -69,11 +69,8 @@ $: console.log(lessonHistory);
 // Utility functions
 // -----------------------------------------------------------------------------
 
-/**
- * Initialize BED files for this lesson
- * @param {Array} bedFiles List of BED files: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
- * @return null
- */
+// Initialize BED files for this lesson.
+// Format: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
 async function init(bedFiles)
 {
 	// Generate Blob objects from strings and mount them as files
@@ -90,54 +87,55 @@ async function init(bedFiles)
 	await bedtools.fs("chdir", files[0].directory);
 
 	// If user was here before, show their answer
-	if(lessonHistory[lesson.id]) {
-		uiCmd = `bedtools ${lessonHistory[lesson.id].answer}`;
-		run("bedtools", lessonHistory[lesson.id].answer, true);
-	}
+	// FIXME:
+	// if(lessonHistory[lesson.id]) {
+	// 	uiCmd = `bedtools ${lessonHistory[lesson.id].answer}`;
+	// 	run("bedtools", lessonHistory[lesson.id].answer, true);
+	// }
 
 	// Get documentation for relevant bedtools command
 	bedUsage.contents = (await bedtools.exec(lesson.usage)).stderr.trim();
 }
 
-/**
- * Run a bedtools command
- * @param {String} program Should always be "bedtools" 
- * @param {String} parameters Space-separated parameters to send to bedtools
- */
-async function run(program, parameters, silent=false)
+// Run a bedtools command (input = CommandLine component message)
+// Format: { program: "bedtools", args: "intersect", done: callback_fn() }
+async function run(cli)
 {
 	// Only accept bedtools commands
 	uiError = "";
-	if(program != "bedtools") {
-		uiError = "Only bedtools commands are accepted.";
+	if(cli.program != "bedtools") {
+		uiError = `Invalid command <kbd>${cli.program}</kbd>. Only <code>bedtools</code> commands are accepted.`;
+		cli.done();
 		return;
 	}
 
 	// Run bedtools with the parameters provided
-	uiReady = false;
-	let out = await bedtools.exec(parameters);
+	let out = await bedtools.exec(cli.args);
 
 	// Save stdout/stderr
 	bedUser.error = out.stderr != "";
 	bedUser.contents = (out.stdout + out.stderr).trim();
-	uiReady = true;
 
 	// Check whether user output is correct
 	let success = bedUser.contents == lesson.goal.contents
 	bedUser.type = success ? "correct" : "incorrect";
 	lessonHistory[lesson.id] = {
 		success: success,
-		answer: parameters
+		answer: cli.args
 	};
 
 	// If answer is correct, let the user know
-	if(success && !silent)
-		jQuery("#modalSuccess").modal();
+	// FIXME: && !silent
+	if(success) {
+		jQuery("#modalSuccess").modal({ focus: false });  // don't focus on modal
+	}
+
+	cli.done();
 }
 
 
 // -----------------------------------------------------------------------------
-// On page load
+// On load
 // -----------------------------------------------------------------------------
 
 onMount(async () => {
@@ -145,6 +143,7 @@ onMount(async () => {
 	await bedtools.init();
 	await bedtools.exec("--version").then(d => console.log(d.stdout));
 
+	// Prep UI
 	uiReady = true;
 	lessonNb = 1;
 });
@@ -161,6 +160,7 @@ onMount(async () => {
 }
 </style>
 
+<!-- Header -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light pt-4 pb-4">
 	<div class="container">
 		<span class="navbar-brand">&#x1F9EC; Bedtools Sandbox</span>
@@ -196,7 +196,7 @@ onMount(async () => {
 	</div>
 </nav>
 
-
+<!-- Tutorial -->
 <main role="main">
 	<div class="container mt-3">
 		<!-- bedtools CLI -->
@@ -204,8 +204,8 @@ onMount(async () => {
 			info={uiInfo}
 			error={uiError}
 			command={uiCmd}
-			on:execute={d => run(d.detail.program, d.detail.parameters)}
-			disabled={!uiReady} />
+			disabled={!uiReady}
+			on:execute={d => run(d.detail)} />
  
 		<!-- Visualize .bed files -->
 		<div class="row mt-2">
