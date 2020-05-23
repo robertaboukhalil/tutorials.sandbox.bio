@@ -5,7 +5,6 @@
 
 // - Add ability to show a hint to the user
 // - Intro lesson that introduces bedtools and what it is
-// - Initialize lessonNb state based on localStorage (i.e. where the user left off)
 // - Test in Chrome
 // - How does it look on mobile?
 
@@ -60,8 +59,8 @@ $: localStorage.setItem("answers", JSON.stringify(lessonAnswers));
 // Bedtools functions
 // -----------------------------------------------------------------------------
 
-// Run a bedtools command
-async function run(args)
+// Exec a bedtools command
+async function exec(args)
 {
 	if(!bedtools.ready || args == null || args == "")
 		return "";
@@ -104,28 +103,29 @@ async function init(lesson)
 
 	// Run bedtools
 	[ bedUser.contents, bedUsage.contents ] = await Promise.all([
-		run(lesson.answer),   // If user had previously entered an answer, run it
-		run(lesson.usage),    // Get relevant bedtools documentation
+		exec(lesson.answer),   // If user had previously entered an answer, run it
+		exec(lesson.usage),    // Get relevant bedtools documentation
 	]);
 }
 
-// Run a bedtools command (input = CommandLine component message)
+// Execute a user's command obtained from CommandLine component
 // Format: { program: "bedtools", args: "intersect", done: callback_fn() }
-async function runFixme(cli)
+async function run(cli)
 {
-	// Only accept bedtools commands
+	// Only support bedtools commands
 	uiError = "";
 	if(cli.program != "bedtools") {
-		uiError = `Invalid command <kbd>${cli.program}</kbd>. Only <code>bedtools</code> is accepted.`;
-		return cli.done();
+		uiError = `Invalid command <kbd>${cli.program}</kbd>. Please enter a <code>bedtools</code> command.`;
+		cli.done();
+		return;
 	}
 
-	// Run bedtools with the parameters provided
-	bedUser.contents = await run(cli.args);
-
+	// Run bedtools
+	bedUser.contents = await exec(cli.args);
 	// Check whether user output is correct
 	let success = bedUser.contents == lesson.goal.contents
 	bedUser.type = success ? "correct" : "incorrect";
+	// Save user input
 	lessonAnswers[lesson.id] = {
 		success: success,
 		answer: cli.args
@@ -184,11 +184,10 @@ onMount(async () => {
 						{#each Lessons as linkout, i}
 							{#if i > 0}
 								<button
-									class="btn btn-link dropdown-item pb-2 pt-2"
+									class="btn btn-link dropdown-item pb-2 pt-2 {linkout.id == lesson.id ? "bg-light" : ""}"
 									style="vertical-align: baseline;"
 									on:click={() => lessonNb = i}>
-									<i class="fas fa-check" style="color: {(lessonAnswers[linkout.id] || {}).success ? "#3BA99C" : "#CCCCCC"}"></i>
-									&nbsp;
+									<i class="fas fa-check" style="color: {(lessonAnswers[linkout.id] || {}).success ? "#3BA99C" : "#CCCCCC"}"></i>&nbsp;
 									<strong>Lesson {i}:</strong> {linkout.title}
 								</button>
 							{/if}
@@ -215,7 +214,7 @@ onMount(async () => {
 			error={uiError}
 			command={uiCmd}
 			disabled={!uiReady}
-			on:execute={d => runFixme(d.detail)} />
+			on:execute={d => run(d.detail)} />
  
 		<!-- Visualize .bed files -->
 		<div class="row mt-2">
