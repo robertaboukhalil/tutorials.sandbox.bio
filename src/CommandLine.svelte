@@ -16,6 +16,7 @@ import { createEventDispatcher } from "svelte";
 let dispatch = createEventDispatcher();  // used to communicate with parent component
 let program = null;                      // e.g. bedtools
 let args = null;                         // e.g. intersect -a a.bed -b b.bed
+let isTyping = true;					 // set to true when user hasn't run the command yet (used for UI)
 
 
 // -----------------------------------------------------------------------------
@@ -24,7 +25,7 @@ let args = null;                         // e.g. intersect -a a.bed -b b.bed
 
 // Split program name from args
 $: program = command.split(" ").shift();
-$: args = command.replace(`${program} `, "");
+$: args = command.replace(`${program} `, "").trim();
 
 
 // -----------------------------------------------------------------------------
@@ -36,6 +37,7 @@ function run()
 {
 	// Send a message to parent component about what to execute
 	disabled = true;
+	isTyping = false;
 	dispatch("execute", {
 		program: program,
 		args: args,
@@ -76,11 +78,11 @@ input {
 				class="form-control form-control-lg"
 				disabled={disabled}
 				bind:value={command}
-				on:keydown={event => event.key == "Enter" ? run() : null}
+				on:keydown={event => event.key == "Enter" ? run() : isTyping = true}
 			/>
 			<div class="input-group-append">
 				<button
-					class="btn btn-lg btn-info"
+					class="btn btn-lg {disabled ? 'btn-secondary' : 'btn-info'} {isTyping ? '' : 'disabled'}"
 					disabled={disabled}
 					on:click={run}
 				>
