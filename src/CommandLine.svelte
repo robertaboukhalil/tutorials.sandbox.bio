@@ -36,21 +36,19 @@ $: parameters = command.replace(`${program} `, "");
 function run()
 {
 	// Send a message to parent component about what to execute
+	cmdChanged = false;
 	dispatch("execute", {
 		program: program,
 		parameters: parameters
 	});
-	cmdChanged = false;
 }
 
 // Handle changing textbox
 function handleKeyDown(event)
 {
 	cmdChanged = true;
-	if(event.key == "Enter") {
-		cmdChanged = false;
+	if(event.key == "Enter")
 		run();
-	}
 }
 
 
