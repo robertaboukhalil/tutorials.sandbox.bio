@@ -26,6 +26,7 @@ afterUpdate(() => {
 // -----------------------------------------------------------------------------
 
 $: tabActive = tabs.filter(t => t.name == active).pop();
+$: contents = tabActive.contents.replace(/(.*ERROR.*)/gi, '<span style="padding:10px; border:3px dotted red;">$1</span>');
 
 
 // -----------------------------------------------------------------------------
@@ -49,5 +50,5 @@ div {
 </ul>
 
 <div bind:this={tab} class="border-bottom border-right border-left border-default p-3">
-	<pre>{tabActive.contents}<br /><br /></pre>
+	<pre>{@html contents}<br /><br /></pre>
 </div>
