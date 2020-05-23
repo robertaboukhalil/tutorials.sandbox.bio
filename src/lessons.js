@@ -1,19 +1,18 @@
+import { BedFile } from "./utils.js";
+
 let Bed1 = `
 chr1	10	20	a1	1	+
 chr1	50	70	a2	2	+
-chr1	80	90	a3	2	+
-`.trim();
+chr1	80	90	a3	2	+`;
 
 let Bed2 = `
 chr1	30	40	b1	2	+
 chr1	55	65	b2	2	+
-chr1	85	120	b3	4	+
-`.trim();
+chr1	85	120	b3	4	+`;
 
 let Bed1_intersect_Bed2 = `
 chr1	55	65	a2	2	+
-chr1	85	90	a3	2	+
-`.trim();
+chr1	85	90	a3	2	+`;
 
 export const Lessons = [
 	{
@@ -25,9 +24,7 @@ export const Lessons = [
 		command: "Loading...",
 		hint: "",
 		inputs: [],
-		goal: {
-			name: ""
-		}
+		goal: new BedFile()
 	},
 	{
 		id: "intersect-1",
@@ -35,22 +32,13 @@ export const Lessons = [
 		description: "that generates overlapping regions between <code>a.bed</code> and <code>b.bed</code>",
 		usage: "intersect --help",
 		tool: "intersect",
-		command: "bedtools intersect",
+		command: "intersect",
 		hint: "",
 		inputs: [
-			{
-				name: "a.bed",
-				contents: Bed1
-			},
-			{
-				name: "b.bed",
-				contents: Bed2
-			}
+			new BedFile("a.bed", Bed1),
+			new BedFile("b.bed", Bed2)
 		],
-		goal: {
-			name: "Goal",
-			contents: Bed1_intersect_Bed2
-		}
+		goal: new BedFile("Goal", Bed1_intersect_Bed2, "goal")
 	},
 	{
 		id: "merge-1",
@@ -58,17 +46,11 @@ export const Lessons = [
 		description: "that merges overlapping regions between the two <code>.bed</code> files",
 		usage: "merge --help",
 		tool: "merge",
-		command: "bedtools merge",
+		command: "merge",
 		hint: "",
 		inputs: [
-			{
-				name: "a.bed",
-				contents: Bed1
-			},
+			new BedFile("a.bed", Bed1),
 		],
-		goal: {
-			name: "Goal",
-			contents: Bed1_intersect_Bed2
-		}
+		goal: new BedFile("Goal", Bed1_intersect_Bed2, "goal")
 	}
 ];

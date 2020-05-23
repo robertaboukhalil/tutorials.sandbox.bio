@@ -9,6 +9,7 @@
 
 import { onMount } from "svelte";
 import { Aioli } from "@biowasm/aioli";
+import { BedFile } from "./utils.js";
 import { Lessons } from "./lessons.js";
 
 import Tabs from "./Tabs.svelte";
@@ -35,8 +36,8 @@ let lessonHistory = {
 };
 
 // Bed Files
-let bedUser = { name: "Yours", contents: "" };
-let bedUsage = { name: "Usage", contents: "Loading..." };
+let bedUser = new BedFile("Yours");
+let bedUsage = new BedFile("Usage", "Loading...");
 
 // UI State
 let uiReady = false;
@@ -235,7 +236,7 @@ onMount(async () => {
 				<h5 class="modal-title">That's correct!</h5>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-info" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
 			</div>
 		</div>
 	</div>
