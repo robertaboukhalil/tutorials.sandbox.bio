@@ -149,7 +149,13 @@ onMount(async () => {
 
 	// Prep UI
 	uiReady = true;
-	lessonNb = 1;
+
+	// Launch first unfinished lesson
+	let i;
+	for(i = 1; i < Lessons.length; i++)
+		if(!((lessonAnswers[Lessons[i].id] || {}).success))
+			break;
+	lessonNb = i;
 });
 
 
