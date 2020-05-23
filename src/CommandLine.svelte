@@ -16,6 +16,7 @@ import { createEventDispatcher } from "svelte";
 let dispatch = createEventDispatcher();  // used to communicate with parent component
 let program = null;                      // e.g. bedtools
 let parameters = null;                   // e.g. intersect -a a.bed -b b.bed
+let cmdChanged = true;					 // set to true when user changes command entered
 
 
 // -----------------------------------------------------------------------------
@@ -39,6 +40,17 @@ function run()
 		program: program,
 		parameters: parameters
 	});
+	cmdChanged = false;
+}
+
+// Handle changing textbox
+function handleKeyDown(event)
+{
+	cmdChanged = true;
+	if(event.key == "Enter") {
+		cmdChanged = false;
+		run();
+	}
 }
 
 
@@ -68,12 +80,12 @@ function run()
 				class="form-control form-control-lg"
 				style="font-family: monospace"
 				bind:value={command}
-				on:keydown={event => event.key == "Enter" ? run() : null}
+				on:keydown={handleKeyDown}
 				disabled={disabled}
 				autofocus
 			>
 			<div class="input-group-append">
-				<button class="btn btn-lg btn-info" on:click={run}>
+				<button class="btn btn-lg btn-{cmdChanged ? "info" : "secondary"}" on:click={run}>
 					Run
 				</button>
 			</div>
