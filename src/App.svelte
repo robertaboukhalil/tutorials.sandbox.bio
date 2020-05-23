@@ -1,7 +1,9 @@
 <script>
 // TODO:
-// - Add ability to show a hint to the user
+// - Focus on CmdLine on page load
 // - Press Enter to go to next lesson
+
+// - Add ability to show a hint to the user
 // - Intro lesson that introduces bedtools and what it is
 // - Initialize lessonNb state based on localStorage (i.e. where the user left off)
 // - Test in Chrome
@@ -27,13 +29,7 @@ let bedtools = new Aioli("bedtools/2.29.2");
 // Current lesson
 let lesson = {};
 let lessonNb = 0;
-// TODO: load this from localStorage
-let lessonHistory = {
-	"lesson-id": {
-		success: false,
-		answer: "<user input>"
-	}
-};
+let lessonAnswers = {};
 
 // Bed Files
 let bedUser = new BedFile("Yours");
@@ -51,28 +47,30 @@ let uiCmd = "Loading...";
 // -----------------------------------------------------------------------------
 
 // Logic to update the lesson
-$: {
-	lesson = Lessons[lessonNb];
-	lesson.goal.type = "goal";
-	bedUser.contents = "";
-	if(lessonNb > 0) {
-		uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>bedtools ${lesson.tool}</code> command ${lesson.description}:`;
-		uiCmd = lesson.command;
-		init(lesson.inputs);
-	}
+$: lesson = Lessons[lessonNb];
+$: lessonNb > 0 ? init(lesson) : null;
+$: lesson.answer = (lessonAnswers[lesson.id] || {}).answer;
+
+// Get/set user's answers to localStorage to keep state when revisit the site
+$: lessonAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+$: localStorage.setItem("answers", JSON.stringify(lessonAnswers));
+
+
+// -----------------------------------------------------------------------------
+// Bedtools functions
+// -----------------------------------------------------------------------------
+
+// Run a bedtools command
+async function run(args)
+{
+	if(!bedtools.ready || args == null || args == "")
+		return "";
+	let result = await bedtools.exec(args);
+	return (result.stdout + result.stderr).trim();
 }
 
-// TODO: save this to localStorage
-$: console.log(lessonHistory);
-
-
-// -----------------------------------------------------------------------------
-// Utility functions
-// -----------------------------------------------------------------------------
-
-// Initialize BED files for this lesson.
-// Format: [{ name: "test.bed", contents: "chr1\t123\t456" }, ...]
-async function init(bedFiles)
+// Mount an array of BedFile objects
+async function mount(bedFiles)
 {
 	// Generate Blob objects from strings and mount them as files
 	let files = [];
@@ -86,51 +84,56 @@ async function init(bedFiles)
 	if(files.length == 0)
 		return;
 	await bedtools.fs("chdir", files[0].directory);
+}
 
-	// If user was here before, show their answer
-	// FIXME:
-	// if(lessonHistory[lesson.id]) {
-	// 	uiCmd = `bedtools ${lessonHistory[lesson.id].answer}`;
-	// 	run("bedtools", lessonHistory[lesson.id].answer, true);
-	// }
 
-	// Get documentation for relevant bedtools command
-	bedUsage.contents = (await bedtools.exec(lesson.usage)).stderr.trim();
+// -----------------------------------------------------------------------------
+// Lesson functions
+// -----------------------------------------------------------------------------
+
+// Initialize a lesson
+async function init(lesson)
+{
+	// Reset UI
+	uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>bedtools ${lesson.tool}</code> command ${lesson.description}:`;
+	uiCmd = `bedtools ${lesson.answer || lesson.command}`;
+	bedUser.contents = "";
+
+	// Mount the files we need in this lesson
+	await mount(lesson.inputs);
+
+	// Run bedtools
+	[ bedUser.contents, bedUsage.contents ] = await Promise.all([
+		run(lesson.answer),   // If user had previously entered an answer, run it
+		run(lesson.usage),    // Get relevant bedtools documentation
+	]);
 }
 
 // Run a bedtools command (input = CommandLine component message)
 // Format: { program: "bedtools", args: "intersect", done: callback_fn() }
-async function run(cli)
+async function runFixme(cli)
 {
 	// Only accept bedtools commands
 	uiError = "";
 	if(cli.program != "bedtools") {
-		uiError = `Invalid command <kbd>${cli.program}</kbd>. Only <code>bedtools</code> commands are accepted.`;
-		cli.done();
-		return;
+		uiError = `Invalid command <kbd>${cli.program}</kbd>. Only <code>bedtools</code> is accepted.`;
+		return cli.done();
 	}
 
 	// Run bedtools with the parameters provided
-	let out = await bedtools.exec(cli.args);
-
-	// Save stdout/stderr
-	bedUser.error = out.stderr != "";
-	bedUser.contents = (out.stdout + out.stderr).trim();
+	bedUser.contents = await run(cli.args);
 
 	// Check whether user output is correct
 	let success = bedUser.contents == lesson.goal.contents
 	bedUser.type = success ? "correct" : "incorrect";
-	lessonHistory[lesson.id] = {
+	lessonAnswers[lesson.id] = {
 		success: success,
 		answer: cli.args
 	};
 
 	// If answer is correct, let the user know
-	// FIXME: && !silent
-	if(success) {
-		jQuery("#modalSuccess").modal({ focus: false });  // don't focus on modal
-	}
-
+	if(success)
+		jQuery("#modalSuccess").modal({ focus: false });
 	cli.done();
 }
 
@@ -178,7 +181,7 @@ onMount(async () => {
 									class="btn btn-link dropdown-item pb-2 pt-2"
 									style="vertical-align: baseline;"
 									on:click={() => lessonNb = i}>
-									<i class="fas fa-check" style="color: {lessonHistory[linkout.id] && lessonHistory[linkout.id].success ? "#3BA99C" : "#CCCCCC"}"></i>
+									<i class="fas fa-check" style="color: {(lessonAnswers[linkout.id] || {}).success ? "#3BA99C" : "#CCCCCC"}"></i>
 									&nbsp;
 									<strong>Lesson {i}:</strong> {linkout.title}
 								</button>
@@ -206,7 +209,7 @@ onMount(async () => {
 			error={uiError}
 			command={uiCmd}
 			disabled={!uiReady}
-			on:execute={d => run(d.detail)} />
+			on:execute={d => runFixme(d.detail)} />
  
 		<!-- Visualize .bed files -->
 		<div class="row mt-2">
