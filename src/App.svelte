@@ -1,8 +1,5 @@
 <script>
 // TODO:
-// - Focus on CmdLine on page load
-// - Press Enter to go to next lesson
-
 // - Add ability to show a hint to the user
 // - Intro lesson that introduces bedtools and what it is
 // - Test in Chrome
@@ -39,6 +36,7 @@ let uiReady = false;
 let uiError = "";
 let uiInfo = "";
 let uiCmd = "Loading...";
+let uiBtnSuccess = null;
 
 
 // -----------------------------------------------------------------------------
@@ -49,6 +47,7 @@ let uiCmd = "Loading...";
 $: lesson = Lessons[lessonNb];
 $: lessonNb > 0 ? init(lesson) : null;
 $: lesson.answer = (lessonAnswers[lesson.id] || {}).answer;
+$: lesson.answer = lesson.answer != lesson.command ? lesson.answer : null;
 
 // Get/set user's answers to localStorage to keep state when revisit the site
 $: lessonAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
@@ -132,8 +131,10 @@ async function run(cli)
 	};
 
 	// If answer is correct, let the user know
-	if(success)
+	if(success) {
 		jQuery("#modalSuccess").modal({ focus: false });
+		setTimeout(() => uiBtnSuccess.focus(), 150);
+	}
 	cli.done();
 }
 
@@ -244,7 +245,7 @@ onMount(async () => {
 				<h5 class="modal-title">That's correct!</h5>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
+				<button bind:this={uiBtnSuccess} type="button" class="btn btn-primary" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
 			</div>
 		</div>
 	</div>
