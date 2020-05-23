@@ -21,7 +21,7 @@ let boxHeight = (height - padding.top - padding.bottom) / 4; // includes the box
 let boxGap = boxHeight * 0.10;
 
 const colorType = {
-	input: "#00ABE7",
+	default: "#00ABE7",
 	goal: "#9393CB",
 	correct: "#3BA99C",
 	incorrect: "#EA526F"
@@ -34,7 +34,7 @@ const colorType = {
 // BED file names and intervals
 $: beds = beds.filter(bed => bed.contents != "");
 $: names = beds.map(bed => bed.name);
-$: colors = beds.map(bed => colorType[bed.type || "input"]);
+$: colors = beds.map(bed => colorType[bed.type || "default"]);
 $: datasets = beds.map(bed => parseBed(bed.contents));
 
 // SVG coordinates
