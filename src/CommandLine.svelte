@@ -6,7 +6,7 @@ export let error = "";          // Error message to show below CLI
 export let disabled = false;    // Whether to disable the input or not
 
 // Imports
-import { createEventDispatcher } from "svelte";
+import { afterUpdate, createEventDispatcher } from "svelte";
 
 
 // -----------------------------------------------------------------------------
@@ -17,6 +17,7 @@ let dispatch = createEventDispatcher();  // used to communicate with parent comp
 let program = null;                      // e.g. bedtools
 let args = null;                         // e.g. intersect -a a.bed -b b.bed
 let isTyping = true;					 // set to true when user hasn't run the command yet (used for UI)
+let textbox = null;
 
 
 // -----------------------------------------------------------------------------
@@ -44,6 +45,9 @@ function run()
 		done: () => disabled = false
 	});
 }
+
+// Focus on command line once the DOM settles
+afterUpdate(() => textbox.focus());
 
 
 // -----------------------------------------------------------------------------
@@ -77,6 +81,7 @@ input {
 				type="text"
 				class="form-control form-control-lg"
 				disabled={disabled}
+				bind:this={textbox}
 				bind:value={command}
 				on:keydown={event => event.key == "Enter" ? run() : isTyping = true}
 			/>
