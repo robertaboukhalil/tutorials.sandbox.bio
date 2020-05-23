@@ -1,9 +1,10 @@
 <script>
 // TODO:
-// - Auto-scroll to bottom of "Yours" tab
 // - Add ability to show a hint to the user
+// - Press Enter to go to next lesson
 // - Intro lesson that introduces bedtools and what it is
 // - Initialize lessonNb state based on localStorage (i.e. where the user left off)
+// - Test in Chrome
 // - How does it look on mobile?
 
 import { onMount } from "svelte";
@@ -233,9 +234,6 @@ onMount(async () => {
 			<div class="modal-header">
 				<h5 class="modal-title">That's correct!</h5>
 			</div>
-			<!-- <div class="modal-body">
-				<p>Modal body text.</p>
-			</div> -->
 			<div class="modal-footer">
 				<button type="button" class="btn btn-info" data-dismiss="modal" on:click={() => lessonNb++}>Go to the next lesson</button>
 			</div>
