@@ -54,6 +54,8 @@ $: lesson.answer = lesson.answer != lesson.tool ? lesson.answer : null;
 $: lessonAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
 $: localStorage.setItem("answers", JSON.stringify(lessonAnswers));
 
+$: bedUser.type = bedUser.contents == bedGoal.contents ? "correct" : "incorrect";
+
 
 // -----------------------------------------------------------------------------
 // Bedtools functions
@@ -123,9 +125,8 @@ async function run(cli)
 
 	// Run bedtools
 	bedUser.contents = await exec(cli.args);
-	// Check whether user output is correct
-	let success = bedUser.contents == bedGoal.contents
-	bedUser.type = success ? "correct" : "incorrect";
+	let success = bedUser.contents == bedGoal.contents;
+
 	// Save user input
 	lessonAnswers[lesson.id] = {
 		success: success,
