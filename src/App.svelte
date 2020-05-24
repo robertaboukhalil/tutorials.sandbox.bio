@@ -29,7 +29,8 @@ let lessonAnswers = {};
 
 // Bed Files
 let bedUser = new BedFile("Yours");
-let bedUsage = new BedFile("Usage", "Loading...");
+let bedUsage = new BedFile("Usage");
+let bedGoal = new BedFile("Goal", "goal");
 
 // UI State
 let uiReady = false;
@@ -47,7 +48,7 @@ let uiBtnSuccess = null;
 $: lesson = Lessons[lessonNb];
 $: lessonNb > 0 ? init(lesson) : null;
 $: lesson.answer = (lessonAnswers[lesson.id] || {}).answer;
-$: lesson.answer = lesson.answer != lesson.command ? lesson.answer : null;
+$: lesson.answer = lesson.answer != lesson.tool ? lesson.answer : null;
 
 // Get/set user's answers to localStorage to keep state when revisit the site
 $: lessonAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
@@ -94,14 +95,15 @@ async function init(lesson)
 {
 	// Reset UI
 	uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>bedtools ${lesson.tool}</code> command ${lesson.description}:`;
-	uiCmd = `bedtools ${lesson.answer || lesson.command}`;
+	uiCmd = `bedtools ${lesson.answer || lesson.tool}`;
 	bedUser.contents = "";
 
 	// Mount the files we need in this lesson
 	await mount(lesson.inputs);
 
 	// Run bedtools
-	[ bedUser.contents, bedUsage.contents ] = await Promise.all([
+	[ bedGoal.contents, bedUser.contents, bedUsage.contents ] = await Promise.all([
+		exec(lesson.goal),     // Run the command that should give the right output
 		exec(lesson.answer),   // If user had previously entered an answer, run it
 		exec(lesson.usage),    // Get relevant bedtools documentation
 	]);
@@ -122,7 +124,7 @@ async function run(cli)
 	// Run bedtools
 	bedUser.contents = await exec(cli.args);
 	// Check whether user output is correct
-	let success = bedUser.contents == lesson.goal.contents
+	let success = bedUser.contents == bedGoal.contents
 	bedUser.type = success ? "correct" : "incorrect";
 	// Save user input
 	lessonAnswers[lesson.id] = {
@@ -220,14 +222,14 @@ onMount(async () => {
 		<!-- Visualize .bed files -->
 		<div class="row mt-2">
 			<div class="col-12">
-				<BedViz beds={[ ...lesson.inputs, lesson.goal, bedUser]} />
+				<BedViz beds={[ ...lesson.inputs, bedGoal, bedUser]} />
 			</div>
 		</div>
 
 		<!-- Inputs and outputs -->
 		<div class="row mt-2">
 			<div class="col-6">
-				<Tabs tabs={[ bedUsage, ...lesson.inputs, lesson.goal ]} />
+				<Tabs tabs={[ bedUsage, ...lesson.inputs, bedGoal ]} />
 			</div>
 
 			<div class="col-6">

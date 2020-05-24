@@ -1,9 +1,9 @@
 export class BedFile
 {
-	constructor(name, contents, type)
+	constructor(name, type, contents)
 	{
 		this.name = name || "";
-		this.contents = (contents || "").trim();
 		this.type = type || "default";
+		this.contents = (contents || "").trim();
     }
 }
