@@ -2,7 +2,11 @@
 
 ## Development
 
-First, install dependencies and launch dev mode (automatically compiles + refreshes page on change):
+> Make sure you have Node.js version >6 (we currently use v13), otherwise, you'll get the error `Unexpected token {`. Use `node --version` to check which version you have. 
+> 
+> If you need to upgrade Node.js: `npm cache clean -f && npm install -g n && n stable` (may need `sudo`)
+
+Install dependencies and launch dev mode (automatically compiles + refreshes page on change):
 
 ```bash
 npm install
@@ -10,5 +14,11 @@ npm run dev
 ```
 
 Then open http://localhost:5000 in your browser.
+
+## Modify Lessons
+
+To update the lessons, modify the JSON in [lessons.js](https://github.com/robertaboukhalil/bedtools-sandbox/blob/master/src/lessons.js#L21).
+
+## Deploy
 
 For the final build (before deployment), use `npm run build`.
