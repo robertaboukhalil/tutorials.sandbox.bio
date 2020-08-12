@@ -6,6 +6,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // CLI Tools
 import Bedtools from "./apps/Bedtools.svelte";
+import Bowtie from "./apps/Bowtie.svelte";
+
+// Reactive Statements
+$: tool = new URL(window.location).searchParams.get("tool");
 </script>
 
-<Bedtools />
+{#if tool == "bedtools"}
+	<Bedtools />
+{:else if tool == "bowtie"}
+	<Bowtie />
+{:else}
+	Homepage
+{/if}
