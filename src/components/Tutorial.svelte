@@ -10,6 +10,7 @@ export let toolCLI = "";
 // -----------------------------------------------------------------------------
 
 import { onMount } from "svelte";
+import jQuery from "jquery";
 import { Aioli } from "@biowasm/aioli";
 import { SomeFile } from "../utils.js";
 
