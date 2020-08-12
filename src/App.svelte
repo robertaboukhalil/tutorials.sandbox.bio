@@ -5,14 +5,7 @@
 // - Test in Chrome
 // - How does it look on mobile?
 
-import { Lessons } from "./lessons/bedtools.js";
-import Tutorial from "./components/Tutorial.svelte";
+import Bedtools from "./apps/Bedtools.svelte";
 </script>
 
-<Tutorial
-	toolID="bedtools"
-	toolName="Bedtools"
-	toolAioli="bedtools/2.29.2"
-	toolCLI="bedtools"
-	lessons={Lessons}
-/>
+<Bedtools />
