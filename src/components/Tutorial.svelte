@@ -24,6 +24,10 @@ import CommandLine from "./CommandLine.svelte";
 
 // WebAssembly module
 let aioli = new Aioli(toolAioli);
+let tools = [
+	{ id: "bedtools", description: "Wrangle .bed genomic interval files" },
+	{ id: "bowtie", description: "Aligns reads to the genome" },
+];
 
 // Current lesson
 let lesson = {};
@@ -185,7 +189,7 @@ onMount(async () => {
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse border-left pl-2 pr-0" id="navbarNavDropdown">
-			<ul class="navbar-nav">
+			<ul class="navbar-nav w-100">
 				<li class="nav-item dropdown">
 					<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 						{#each lessons as linkout, i}
@@ -206,6 +210,22 @@ onMount(async () => {
 						<strong>Lesson {lessonNb}:</strong> {lesson.title}
 					</btn>
 					{/if}
+				</li>
+				<li class="nav-item dropdown ml-auto">
+					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink2">
+						{#each tools as tool}
+							<a
+								class="btn btn-link dropdown-item pb-2 pt-2 {tool.id == toolID ? "bg-light" : ""}"
+								style="vertical-align: baseline;"
+								href="?tool={tool.id}">
+								<strong>{tool.id}:</strong> {tool.description}
+							</a>
+						{/each}
+					</div>
+
+					<btn class="btn btn-link nav-link dropdown-toggle" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<strong>{toolID}</strong>
+					</btn>
 				</li>
 			</ul>
 		</div>
