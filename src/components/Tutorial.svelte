@@ -5,9 +5,13 @@ export let toolName = "";
 export let toolAioli = "";
 export let toolCLI = "";
 
+// -----------------------------------------------------------------------------
+// Imports
+// -----------------------------------------------------------------------------
+
 import { onMount } from "svelte";
 import { Aioli } from "@biowasm/aioli";
-import { BedFile } from "../utils.js";
+import { SomeFile } from "../utils.js";
 
 import Tabs from "./Tabs.svelte";
 import VizBed from "./VizBed.svelte";
@@ -27,9 +31,9 @@ let lessonNb = 0;
 let lessonAnswers = {};
 
 // Bed Files
-let bedUser = new BedFile("Yours");
-let bedUsage = new BedFile("Usage");
-let bedGoal = new BedFile("Goal", "goal");
+let fileUser = new SomeFile("Yours");
+let fileUsage = new SomeFile("Usage");
+let fileGoal = new SomeFile("Goal", "goal");
 
 // UI State
 let uiReady = false;
@@ -53,7 +57,7 @@ $: lesson.answer = lesson.answer != lesson.tool ? lesson.answer : null;
 $: lessonAnswers = JSON.parse(localStorage.getItem(toolID) || "{}");
 $: localStorage.setItem(toolID, JSON.stringify(lessonAnswers));
 
-$: bedUser.type = bedUser.contents == bedGoal.contents ? "correct" : "incorrect";
+$: fileUser.type = fileUser.contents == fileGoal.contents ? "correct" : "incorrect";
 
 
 // -----------------------------------------------------------------------------
@@ -69,12 +73,12 @@ async function exec(args)
 	return (result.stdout + result.stderr).trim();
 }
 
-// Mount an array of BedFile objects
-async function mount(bedFiles)
+// Mount an array of SomeFile objects
+async function mount(someFiles)
 {
 	// Generate Blob objects from strings and mount them as files
 	let files = [];
-	for(let fileInfo of bedFiles) {
+	for(let fileInfo of someFiles) {
 		let blob = new Blob([ fileInfo.contents ], { type: "text/plain" });
 		files.push(await Aioli.mount(blob, fileInfo.name));
 	}
@@ -97,13 +101,13 @@ async function init(lesson)
 	// Reset UI
 	uiInfo = `<strong>Lesson Goal</strong>: Enter a <code>${toolCLI} ${lesson.tool}</code> command ${lesson.description}:`;
 	uiCmd = `${toolCLI} ${lesson.answer || lesson.tool}`;
-	bedUser.contents = "";
+	fileUser.contents = "";
 
 	// Mount the files we need in this lesson
 	await mount(lesson.inputs);
 
     // Run tool
-	[ bedGoal.contents, bedUser.contents, bedUsage.contents ] = await Promise.all([
+	[ fileGoal.contents, fileUser.contents, fileUsage.contents ] = await Promise.all([
 		exec(lesson.goal),     // Run the command that should give the right output
 		exec(lesson.answer),   // If user had previously entered an answer, run it
 		exec(lesson.usage),    // Get relevant CLI documentation
@@ -123,8 +127,8 @@ async function run(cli)
 	}
 
 	// Run the tool
-	bedUser.contents = await exec(cli.args);
-	let success = bedUser.contents == bedGoal.contents;
+	fileUser.contents = await exec(cli.args);
+	let success = fileUser.contents == fileGoal.contents;
 
 	// Save user input
 	lessonAnswers[lesson.id] = {
@@ -229,11 +233,11 @@ onMount(async () => {
 		<!-- Inputs and outputs -->
 		<div class="row mt-2">
 			<div class="col-6">
-				<Tabs tabs={[ bedUsage, ...lesson.inputs, bedGoal ]} />
+				<Tabs tabs={[ fileUsage, ...lesson.inputs, fileGoal ]} />
 			</div>
 
 			<div class="col-6">
-				<Tabs tabs={[ bedUser ]} scroll="true" />
+				<Tabs tabs={[ fileUser ]} scroll="true" />
 			</div>
 		</div>
 	</div>

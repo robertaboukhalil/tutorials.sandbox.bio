@@ -1,15 +1,15 @@
-import { BedFile } from "../utils.js";
+import { SomeFile } from "../utils.js";
 
 // -----------------------------------------------------------------------------
 // BED Files
 // -----------------------------------------------------------------------------
 
-let Bed1 = new BedFile("a.bed", "default", `
+let Bed1 = new SomeFile("a.bed", "default", `
 chr1	10	20	a1	1	+
 chr1	50	70	a2	2	+
 chr1	80	90	a3	2	+`);
 
-let Bed2 = new BedFile("b.bed", "default", `
+let Bed2 = new SomeFile("b.bed", "default", `
 chr1	30	40	b1	2	+
 chr1	55	65	b2	2	+
 chr1	85	120	b3	4	+`);
@@ -31,7 +31,7 @@ chr1	85	120	b3	4	+`);
 //    usage: "intersect --help",
 //    // The name of the bedtools program that users should use for this lesson
 //    tool: "intersect",
-//    // An array of BedFile objects that denote input files
+//    // An array of SomeFile objects that denote input files
 //    inputs: [ Bed1, Bed2 ],
 //    // Bedtools command that gives the expected answer (executed at lesson load time)
 //    goal: "intersect -a a.bed -b b.bed",

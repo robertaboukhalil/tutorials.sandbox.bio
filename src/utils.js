@@ -1,4 +1,4 @@
-export class BedFile
+export class SomeFile
 {
 	constructor(name, type, contents)
 	{
