@@ -14,7 +14,6 @@ import { Aioli } from "@biowasm/aioli";
 import { SomeFile } from "../utils.js";
 
 import Tabs from "./Tabs.svelte";
-import VizBed from "./VizBed.svelte";
 import CommandLine from "./CommandLine.svelte";
 
 
@@ -30,7 +29,7 @@ let lesson = {};
 let lessonNb = 0;
 let lessonAnswers = {};
 
-// Bed Files
+// Files displayed to the user
 let fileUser = new SomeFile("Yours");
 let fileUsage = new SomeFile("Usage");
 let fileGoal = new SomeFile("Goal", "goal");
@@ -223,12 +222,7 @@ onMount(async () => {
 			disabled={!uiReady}
 			on:execute={d => run(d.detail)} />
  
-		<!-- Visualize .bed files -->
-		<div class="row mt-2">
-			<div class="col-12">
-				<VizBed beds={[ ...lesson.inputs, bedGoal, bedUser]} />
-			</div>
-		</div>
+        <slot name="viz" files={[ ...lesson.inputs, fileGoal, fileUser]} />
 
 		<!-- Inputs and outputs -->
 		<div class="row mt-2">
