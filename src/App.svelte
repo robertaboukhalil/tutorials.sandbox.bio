@@ -4,6 +4,9 @@ import popper from "popper.js";
 import Bootstrap from "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+// Home page
+import Home from "./components/Home.svelte";
+
 // CLI Tools
 import Bedtools from "./apps/Bedtools.svelte";
 import Bowtie from "./apps/Bowtie.svelte";
@@ -17,5 +20,5 @@ $: tool = new URL(window.location).searchParams.get("tool");
 {:else if tool == "bowtie"}
 	<Bowtie />
 {:else}
-	Homepage
+	<Home />
 {/if}

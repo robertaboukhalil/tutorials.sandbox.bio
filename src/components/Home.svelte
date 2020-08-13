@@ -19,9 +19,9 @@ import { Tools } from "../utils.js";
 
 <main role="main">
     <div class="container mt-3">
-        <h4 class="mb-4">Tutorials:</h4>
+        <h4 class="mb-4">&nbsp;Tutorials:</h4>
         {#each Tools as tool}
-        <div class="row mt-2">
+        <div class="row mt-2 ml-1">
             <a
                 class="btn btn-outline-primary pb-2 pt-2"
                 href="?tool={tool.id}">
