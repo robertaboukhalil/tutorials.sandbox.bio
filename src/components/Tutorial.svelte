@@ -4,6 +4,8 @@ export let toolID = "";
 export let toolName = "";
 export let toolAioli = "";
 export let toolCLI = "";
+export let postprocess = d => d;
+
 
 // -----------------------------------------------------------------------------
 // Imports
@@ -60,8 +62,6 @@ $: lesson.answer = lesson.answer != lesson.tool ? lesson.answer : null;
 // Get/set user's answers to localStorage to keep state when revisit the site
 $: lessonAnswers = JSON.parse(localStorage.getItem(toolID) || "{}");
 $: localStorage.setItem(toolID, JSON.stringify(lessonAnswers));
-
-$: fileUser.type = fileUser.contents == fileGoal.contents ? "correct" : "incorrect";
 
 
 // -----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ async function run(cli)
 
 	// Run the tool
 	fileUser.contents = await exec(cli.args);
-	let success = fileUser.contents == fileGoal.contents;
+	let success = postprocess(fileUser.contents) == postprocess(fileGoal.contents);
 
 	// Save user input
 	lessonAnswers[lesson.id] = {
