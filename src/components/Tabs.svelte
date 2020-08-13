@@ -27,7 +27,7 @@ afterUpdate(() => {
 // -----------------------------------------------------------------------------
 
 $: tabActive = tabs.filter(t => t.name == active).pop();
-$: contents = tabActive.contents.replace(/(.*error:.*)/gi, '<span style="padding:10px; border:3px dotted red;">$1</span>');
+$: errors = tabActive.contents.match(/(.*error:.*)/gi);
 
 
 // -----------------------------------------------------------------------------
@@ -51,5 +51,8 @@ div {
 </ul>
 
 <div bind:this={tab} class="border-bottom border-right border-left border-default p-3">
-	<pre>{@html contents}<br /><br /></pre>
+	<pre>{tabActive.contents}<br /><br /></pre>
+	{#if errors != "" && errors != null}
+		<pre style="padding:10px; border:3px dotted red;">{@html errors.join("\n")}<br /><br /></pre>
+	{/if}
 </div>
