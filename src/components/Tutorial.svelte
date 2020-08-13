@@ -63,6 +63,9 @@ $: lesson.answer = lesson.answer != lesson.tool ? lesson.answer : null;
 $: lessonAnswers = JSON.parse(localStorage.getItem(toolID) || "{}");
 $: localStorage.setItem(toolID, JSON.stringify(lessonAnswers));
 
+// Set the type to "correct" if user got it right (this is used by the viz)
+$: fileUser.type = postprocess(fileUser.contents) == postprocess(fileGoal.contents) ? "correct" : "incorrect";
+
 
 // -----------------------------------------------------------------------------
 // Aioli functions
