@@ -14,7 +14,7 @@ export let postprocess = d => d;
 import { onMount } from "svelte";
 import jQuery from "jquery";
 import { Aioli } from "@biowasm/aioli";
-import { SomeFile } from "../utils.js";
+import { SomeFile, Tools } from "../utils.js";
 
 import Tabs from "./Tabs.svelte";
 import CommandLine from "./CommandLine.svelte";
@@ -26,10 +26,6 @@ import CommandLine from "./CommandLine.svelte";
 
 // WebAssembly module
 let aioli = new Aioli(toolAioli);
-let tools = [
-	{ id: "bedtools", description: "Wrangle .bed genomic interval files" },
-	{ id: "bowtie", description: "Aligns reads to the genome" },
-];
 
 // Current lesson
 let lesson = {};
@@ -216,7 +212,7 @@ onMount(async () => {
 				</li>
 				<li class="nav-item dropdown ml-auto">
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink2">
-						{#each tools as tool}
+						{#each Tools as tool}
 							<a
 								class="btn btn-link dropdown-item pb-2 pt-2 {tool.id == toolID ? "bg-light" : ""}"
 								style="vertical-align: baseline;"
