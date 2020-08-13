@@ -1,4 +1,4 @@
-# bedtools.sandbox.bio
+# tutorials.sandbox.bio
 
 ## Development
 
@@ -17,7 +17,7 @@ Then open http://localhost:5000 in your browser.
 
 ## Modify Lessons
 
-To update the lessons, modify the JSON in [lessons.js](https://github.com/robertaboukhalil/bedtools-sandbox/blob/master/src/lessons.js#L21).
+To update the lessons, modify the JSON in [lessons.js](https://github.com/robertaboukhalil/tutorials.sandbox.bio/tree/master/src/lessons).
 
 ## Deploy
 

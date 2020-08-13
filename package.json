@@ -1,5 +1,5 @@
 {
-  "name": "bedtools-sandbox",
+  "name": "tutorials.sandbox.bio",
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
