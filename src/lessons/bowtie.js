@@ -15,7 +15,7 @@ NTTNTGATGCGGGCTTGTGGAGTTCAGCCGATCTGACTTATGTCATTACCTATGAAATGTGAGGACGCTATGCCTGTACC
 export const Lessons = [
 	{
 		id: "lesson-loading",
-        inputs: [],
+		inputs: [],
 	},
 	{
 		id: "map-1",
@@ -24,7 +24,7 @@ export const Lessons = [
 		usage: "--help",
 		tool: "",
 		inputs: [Fastq1],
-        goal: "-x /example/index/lambda_virus -U reads.fastq",
+		goal: "-x /example/index/lambda_virus -U reads.fastq",
 	},
 	{
 		id: "map-2",
